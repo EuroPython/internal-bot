@@ -54,6 +54,19 @@ The bot's main goal is to make life easier for the conference teams by streamlin
 
 ## Local Development
 
+
+### FAQ
+####  Using M1 Mac, and psycopg doesn't work?
+
+Make sure that your Python installation is compiled with lipbq correctly.
+In case of using brew and pyenv this could help:
+
+```
+$ brew link --force libpq
+$ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+$ pyenv install 3.12
+```
+
 ...
 
 ## Contributing
