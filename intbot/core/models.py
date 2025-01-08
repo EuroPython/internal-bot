@@ -14,7 +14,7 @@ class Webhook(models.Model):
 
     # Extra information about the webhook, that might be provided in the
     # headers or similar
-    meta = models.JSONField(default={})
+    meta = models.JSONField(default=dict)
 
     content = models.JSONField()
 
