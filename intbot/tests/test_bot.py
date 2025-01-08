@@ -37,4 +37,7 @@ async def test_source_command():
     await source(ctx)
 
     # Assert that the command sent the expected message
-    ctx.send.assert_called_once_with("I'm here: https://github.com/europython/internal-bot")
+    ctx.send.assert_called_once_with(
+        "I'm here: https://github.com/europython/internal-bot",
+        suppress_embeds=True,
+    )
