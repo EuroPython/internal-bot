@@ -1,4 +1,4 @@
-DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run ./manage.py
+DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run --env-file .env -- ./manage.py
 TEST_CMD=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
 
 
@@ -20,6 +20,9 @@ migrations:
 
 test:
 	$(TEST_CMD) -s -vv
+
+bot:
+	$(DEV_CMD) run_bot
 
 
 client/send_test_webhook:

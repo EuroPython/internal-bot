@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import warnings
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -122,6 +123,16 @@ if DJANGO_ENV == "dev":
     }
 
     WEBHOOK_INTERNAL_TOKEN = "dev-token"
+
+    # This is only needed if you end up running the bot locally, hence it
+    # doesn't fail explicilty – however it does emit a warning.
+    # Please check the documentation and/or current online guides how to get
+    # one from the developer portal.
+    # If you run it locally, you probably want to run it against your own test
+    # bot and a test server.
+    DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
+    if not DISCORD_BOT_TOKEN:
+        warnings.warn("DISCORD_BOT_TOKEN not set")
 
 elif DJANGO_ENV == "test":
     DEBUG = True

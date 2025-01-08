@@ -15,4 +15,5 @@ dependencies = [
     "pytest-django>=4.9.0",
     "django-extensions>=3.2.3",
     "httpx>=0.28.1",
+    "pytest-asyncio>=0.25.2",
 ]
