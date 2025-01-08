@@ -1,8 +1,15 @@
+# Welcome! :)
+
+# Test/Dev
 DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run --env-file .env -- ./manage.py
 TEST_CMD=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
 
+# Docker
 DOCKER_RUN_WITH_PORT=docker run -p 4672:4672 --add-host=host.internal:host-gateway -e DJANGO_ENV="local_container" -it intbot:$(V)
+MANAGE=cd intbot && ./manage.py
 
+# Deployment
+DEPLOY_CMD=cd deploy && uvx --from "ansible-core" ansible-playbook -i hosts.yml
 
 # mostly useful for docker and deployment
 current_git_hash=$(shell git rev-parse HEAD)
@@ -48,9 +55,25 @@ in-container/gunicorn:
 in-container/bot:
 	$(MANAGE) run_bot
 
+in-container/migrate:
+	$(MANAGE) migrate
+
+
+# Docker management targets
 
 docker/build:
 	docker build . -t intbot:$(current_git_hash)
 
 docker/run/gunicorn:
 	$(DOCKER_RUN_WITH_PORT) make in-container/gunicorn
+
+
+# Deploymenet targets
+#
+deploy/provision:
+	$(DEPLOY_CMD) playbooks/01_setup.yml
+	$(DEPLOY_CMD) playbooks/02_nginx.yml
+
+deploy/app:
+	@echo "Deploying version $(V) to a remote server"
+	$(DEPLOY_CMD) playbooks/03_app.yml --extra-vars "app_version=$(V)"
