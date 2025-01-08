@@ -1,3 +1,4 @@
+DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run ./manage.py
 
 
 help:
@@ -5,10 +6,16 @@ help:
 	@echo "Hello world!, Please check the file content for details"
 
 server:
-	cd intbot && DJANGO_ENV="dev" uv run ./manage.py runserver 0.0.0.0:4672
+	$(DEV_CMD) runserver 0.0.0.0:4672
+
+shell:
+	$(DEV_CMD) shell_plus
 
 migrate:
-	cd intbot && DJANGO_ENV="dev" uv run ./manage.py migrate
+	$(DEV_CMD) migrate
+
+migrations:
+	$(DEV_CMD) makemigrations -n $(N)
 
 test:
 	cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest
