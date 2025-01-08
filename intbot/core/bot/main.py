@@ -18,6 +18,12 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong!")
 
+
+@bot.command()
+async def source(ctx):
+    await ctx.send("I'm here: https://github.com/europython/internal-bot")
+
+
 @bot.command()
 async def version(ctx):
     app_version = settings.APP_VERSION

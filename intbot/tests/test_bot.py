@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from core.bot.main import ping, version
+from core.bot.main import ping, version, source
 
 
 @pytest.mark.asyncio
@@ -26,3 +26,15 @@ async def test_version_command():
 
     # Assert that the command sent the expected message
     ctx.send.assert_called_once_with("Version: latest")
+
+
+@pytest.mark.asyncio
+async def test_source_command():
+    # Mock context
+    ctx = AsyncMock()
+
+    # Call the command
+    await source(ctx)
+
+    # Assert that the command sent the expected message
+    ctx.send.assert_called_once_with("I'm here: https://github.com/europython/internal-bot")
