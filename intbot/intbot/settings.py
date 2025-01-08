@@ -118,7 +118,21 @@ if DJANGO_ENV == "dev":
     }
 
 elif DJANGO_ENV == "test":
-    ...
+    DEBUG = True
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+    SECRET_KEY = "django-insecure-secret"
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "intbot_database_dev",
+            "USER": "intbot_user",
+            "PASSWORD": "intbot_password",
+            "HOST": "localhost",
+            "PORT": "14672",
+        }
+    }
 
 
 else:

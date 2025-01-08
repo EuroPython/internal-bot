@@ -9,3 +9,6 @@ server:
 
 migrate:
 	cd intbot && DJANGO_ENV="dev" uv run ./manage.py migrate
+
+test:
+	cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest
