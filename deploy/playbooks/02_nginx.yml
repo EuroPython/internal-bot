@@ -1,0 +1,25 @@
+- name: Make sure that nginx and https work correctly for the app
+  hosts: intbot_nginx
+
+  tasks:
+    - name: Copy nginx configuration file
+      ansible.builtin.template:
+        src: ../templates/nginx/nginx.conf.j2
+        dest: ./nginx.conf
+
+    - name: Create a server Makefile (for nginx) to manage on-server tasks
+      ansible.builtin.template:
+        src: ../templates/nginx/Makefile.nginx.j2
+        dest: ./Makefile
+
+    - name: Set up docker-compose.yml on the remote server
+      ansible.builtin.template:
+        src: ../templates/nginx/docker-compose.nginx.yml.j2
+        dest: ./docker-compose.yml
+
+    - name: Make sure the directory structure for certs exist
+      shell: mkdir -p ./data/certbot/conf
+
+    - name: Display info at the end
+      debug:
+        msg: "Go to /home/{{ ansible_user }} and run make certbot/init-staging; then make certbot/upgrade-to-prod"

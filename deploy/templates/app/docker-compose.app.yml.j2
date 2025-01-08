@@ -1,0 +1,52 @@
+
+services:
+  db:
+    image: postgres:16.4
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - intbot.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intbot_user_prod -d intbot_database_prod"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  app:
+    image: "intbot:{{ app_version }}"
+    command: "make in-container/gunicorn"
+    env_file:
+      - intbot.env
+    environment:
+      - APP_VERSION={{ app_version[:8] }}
+    expose:
+      - "{{ app_port }}"
+    networks:
+      - "shared_with_nginx_network"
+      - "default"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+  bot:
+    image: "intbot:{{ app_version }}"
+    command: "make in-container/bot"
+    env_file:
+      - intbot.env
+    environment:
+      - APP_VERSION={{ app_version[:8] }}
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+volumes:
+  pgdata:
+
+
+networks:
+  shared_with_nginx_network:
+    name: shared_with_nginx_network
+    external: true

@@ -1,0 +1,95 @@
+- name: Deploy nginx and Let's Encrypt SSL certificate
+  hosts: intbot_setup
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Install Docker dependencies
+      apt:
+        name: "{{ package }}"
+        state: present
+        update_cache: yes
+      vars:
+        package:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - make
+
+    - name: Install Docker
+      block:
+        - name: Add Docker GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+
+        - name: Add Docker repository
+          apt_repository:
+            repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+            state: present
+
+        - name: Install Docker
+          apt:
+            name: docker-ce
+            state: present
+
+    - name: Combine non-root users to a single list
+      set_fact:
+        non_root_user_names: ["{{ nginx_user }}", "{{ app_user }}"]
+
+    - name: Create non-root users
+      block:
+        - name: Add user
+          ansible.builtin.user:
+            name: "{{ username }}"
+            shell: "/bin/bash"
+            generate_ssh_key: yes
+            ssh_key_type: ed25519
+            ssh_key_comment: "{{ username }}@{{ inventory_hostname }}"
+            create_home: yes
+          loop: "{{ non_root_user_names }}"
+          loop_control:
+            loop_var: username
+
+        - name: Make sure that user has permissions to the their home
+          ansible.builtin.file:
+            path: "/home/{{ username }}"
+            state: directory
+            owner: "{{ username }}"
+            group: "{{ username }}"
+          loop: "{{ non_root_user_names }}"
+          loop_control:
+            loop_var: username
+
+        - name: Then copy the authorized_keys from root so you can ssh later to the user
+          copy:
+            src: "/root/.ssh/authorized_keys"
+            dest: "/home/{{ username }}/.ssh/authorized_keys"
+            owner: "{{ username }}"
+            group: "{{ username }}"
+            mode: "0600"
+            remote_src: "yes"
+          loop: "{{ non_root_user_names }}"
+          loop_control:
+            loop_var: username
+
+        - name: Add the non root users (both nginx and app) to docker group
+          user:
+            name: "{{ username }}"
+            groups: docker
+            append: yes
+          loop: "{{ non_root_user_names }}"
+          loop_control:
+            loop_var: username
+
+    - name: Read the deploy public key
+      slurp:
+        src: "/home/{{ app_user }}/.ssh/id_ed25519.pub"
+      register: deploy_key
+
+    - name: Display the public key
+      debug:
+        msg: "For private repositories, make sure to put this key as deploy key on github:  {{ deploy_key.content | b64decode }}"
+

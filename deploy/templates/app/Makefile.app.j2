@@ -1,0 +1,18 @@
+
+echo:
+	"Dummy target, to not run something accidentally"
+
+prod/migrate:
+	docker compose run app make in-container/migrate
+
+prod/shell:
+	docker compose run app make in-container/shell
+
+prod/db_shell:
+	docker compose run app make in-container/db_shell
+
+prod/manage:
+	docker compose run app make in-container/manage ARG=$(ARG)
+
+logs:
+	docker compose logs -f

@@ -1,0 +1,23 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf"
+      - "./data/certbot/conf:/etc/letsencrypt"
+      - "./data/certbot/www:/var/www/certbot"
+      - "./data/static:/usr/share/static"
+    networks:
+      - shared_with_nginx_network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - "./data/certbot/conf:/etc/letsencrypt"
+      - "./data/certbot/www:/var/www/certbot"
+
+networks:
+  shared_with_nginx_network:
+    name: shared_with_nginx_network

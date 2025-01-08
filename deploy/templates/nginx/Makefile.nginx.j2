@@ -1,0 +1,88 @@
+# Set a special docker-compose file for all the operations
+COMPOSE := docker compose
+
+CERT_PATH=/etc/letsencrypt/live/{{ domain_name }}
+DATA_PATH=./data/certbot
+SSL_NGINX_CONF_URL=https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
+SSL_DHPARAMS_URL=https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem
+
+echo:
+	"This is a first dummy target, so you don't accidentally run something :)"
+
+nginx/recreate:
+	$(COMPOSE) up --force-recreate -d nginx
+
+certbot/renew:
+	$(COMPOSE) run certbot renew
+	$(COMPOSE) restart nginx
+
+
+certbot/list:
+	$(COMPOSE) run certbot certificates
+
+
+certbot/init-staging: \
+	certbot/download-initial-parameters \
+	certbot/create-dummy-certificate \
+	nginx/recreate \
+	certbot/delete-dummy-certificate \
+	certbot/create-staging-certificate
+
+
+certbot/download-initial-parameters:
+	@echo "### Downloading recommended TLS parameters ... "
+	mkdir -p "$(DATA_PATH)/conf"
+	curl -s $(SSL_NGINX_CONF_URL) > "$(DATA_PATH)/conf/options-ssl-nginx.conf"
+	curl -s $(SSL_DHPARAMS_URL) > "$(DATA_PATH)/conf/ssl-dhparams.pem"
+
+
+certbot/create-dummy-certificate:
+	@echo "### Creating a dummy certificate for {{ domain_name }}"
+	mkdir -p "$(DATA_PATH)/conf/live/{{ domain_name }}"
+	$(COMPOSE) run --rm --entrypoint "\
+		openssl req -x509 -nodes -newkey rsa:{{ letsencrypt_rsa_key_size }} \
+		-days 1 \
+		-keyout '$(CERT_PATH)/privkey.pem' \
+		-out '$(CERT_PATH)/fullchain.pem' \
+		-subj '/CN=localhost'" \
+		certbot
+
+
+certbot/delete-dummy-certificate:
+	@echo "### Deleting dummy certificate for {{ domain_name }} ..."
+	$(COMPOSE) run --rm --entrypoint "\
+		rm -rf /etc/letsencrypt/live/{{ domain_name }} && \
+		rm -rf /etc/letsencrypt/archive/{{ domain_name }} && \
+		rm -rf /etc/letsencrypt/renewal/{{ domain_name }}.conf" \
+		certbot
+
+
+certbot/create-staging-certificate:
+	# First regenerate the certificate
+	$(COMPOSE) run certbot certonly \
+		--staging \
+		--webroot -w /var/www/certbot \
+		--email "{{ letsencrypt_email }}" \
+		-d "{{ domain_name }}" \
+		--rsa-key-size "{{ letsencrypt_rsa_key_size }}" \
+		--agree-tos \
+		--force-renewal
+	# And then restart nginx....
+	$(COMPOSE) exec nginx nginx -s reload
+
+
+certbot/force-reissue-PROD-certificate:
+	# First regenerate the certificate
+	$(COMPOSE) run certbot certonly \
+		--force-renewal \
+		--webroot -w /var/www/certbot \
+		--email "{{ letsencrypt_email }}" \
+		-d "{{ domain_name }}" \
+		--rsa-key-size "{{ letsencrypt_rsa_key_size }}" \
+		--agree-tos \
+		--force-renewal
+	# And then restart nginx....
+	$(COMPOSE) exec nginx nginx -s reload
+
+
+certbot/upgrade-to-prod: certbot/force-reissue-PROD-certificate
