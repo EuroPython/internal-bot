@@ -16,4 +16,6 @@ dependencies = [
     "django-extensions>=3.2.3",
     "httpx>=0.28.1",
     "pytest-asyncio>=0.25.2",
+    "whitenoise>=6.8.2",
+    "gunicorn>=23.0.0",
 ]

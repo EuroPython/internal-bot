@@ -34,6 +34,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise to serve static files
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -97,7 +99,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / ".." / "_static_root"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -153,6 +157,52 @@ elif DJANGO_ENV == "test":
 
     WEBHOOK_INTERNAL_TOKEN = "test-random-token"
 
+
+elif DJANGO_ENV == "local_container":
+    DEBUG = False
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+    SECRET_KEY = "django-insecure-secret"
+
+    # Same postgres instance as local dev, but different config
+    # We're going through the host network to connect to the postgres running
+    # on the same exposed port as local dev
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "intbot_database_dev",
+            "USER": "intbot_user",
+            "PASSWORD": "intbot_password",
+            "HOST": "host.internal",
+            "PORT": "14672",
+        }
+    }
+
+    # For 500 errors to appear on stderr
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+            },
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": "ERROR",
+                "propagate": True,
+            },
+        },
+    }
+
+
+
+
+elif DJANGO_ENV == "build":
+    # Currently used only for collecting staticfiles in docker
+    DEBUG = False
 
 else:
     raise ValueError(f"Unsupported DJANGO_ENV `{DJANGO_ENV}`")
