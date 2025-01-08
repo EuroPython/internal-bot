@@ -1,0 +1,16 @@
+services:
+
+  db:
+    image: postgres:16.4
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: intbot_user
+      POSTGRES_PASSWORD: intbot_password
+      POSTGRES_DB: intbot_database_dev
+    ports:
+      # 14672 is 10k + app port
+      - "14672:5432"
+
+volumes:
+  pgdata:
