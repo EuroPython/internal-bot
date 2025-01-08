@@ -23,7 +23,7 @@ async def ping(ctx):
 async def source(ctx):
     await ctx.send(
         "I'm here: https://github.com/europython/internal-bot",
-        supress_embeds=True,
+        suppress_embeds=True,
     )
 
 
