@@ -108,6 +108,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DJANGO_ENV = os.environ["DJANGO_ENV"]
+APP_VERSION = os.environ.get("APP_VERSION", "latest")[:8]
 
 if DJANGO_ENV == "dev":
     DEBUG = True

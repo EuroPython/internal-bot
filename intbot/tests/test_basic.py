@@ -11,6 +11,7 @@ It checks whether the tests
 """
 
 from django.contrib.auth.models import User
+from django.conf import settings
 import pytest
 
 
@@ -28,3 +29,4 @@ def test_http_sanity_check(client):
     assert response.status_code == 200
     assert response["Content-Type"] == "application/json"
     assert response.json()["hello"] == "world"
+    assert response.json()["v"] == settings.APP_VERSION
