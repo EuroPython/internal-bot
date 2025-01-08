@@ -21,7 +21,10 @@ async def ping(ctx):
 
 @bot.command()
 async def source(ctx):
-    await ctx.send("I'm here: https://github.com/europython/internal-bot")
+    await ctx.send(
+        "I'm here: https://github.com/europython/internal-bot",
+        supress_embeds=True,
+    )
 
 
 @bot.command()
