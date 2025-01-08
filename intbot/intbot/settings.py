@@ -138,6 +138,8 @@ elif DJANGO_ENV == "test":
         }
     }
 
+    WEBHOOK_INTERNAL_TOKEN = "test-random-token"
+
 
 else:
     raise ValueError(f"Unsupported DJANGO_ENV `{DJANGO_ENV}`")
