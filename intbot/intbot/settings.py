@@ -198,6 +198,53 @@ elif DJANGO_ENV == "local_container":
     }
 
 
+elif DJANGO_ENV == "prod":
+    DEBUG = False
+    SECRET_KEY = os.environ["SECRET_KEY"]
+
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+        "internal.europython.eu",
+    ]
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["POSTGRES_DB"],
+            "USER": os.environ["POSTGRES_USER"],
+            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+            "HOST": "db",
+            "PORT": "5432",  # internal port
+        }
+    }
+
+    # For 500 errors to appear on stderr
+    # For now it's good for docker, in the future sentry/or rollabar should be
+    # here
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+            },
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": "WARNING",
+                "propagate": True,
+            },
+        },
+    }
+
+    DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
+
+    CSRF_TRUSTED_ORIGINS = [
+        "https://internal.europython.eu",
+    ]
 
 
 elif DJANGO_ENV == "build":
