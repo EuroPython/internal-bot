@@ -121,6 +121,8 @@ if DJANGO_ENV == "dev":
         }
     }
 
+    WEBHOOK_INTERNAL_TOKEN = "dev-token"
+
 elif DJANGO_ENV == "test":
     DEBUG = True
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]

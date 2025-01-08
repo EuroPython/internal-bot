@@ -20,3 +20,7 @@ migrations:
 
 test:
 	$(TEST_CMD) -s -vv
+
+
+client/send_test_webhook:
+	uv run client/send_test_webhook.py
