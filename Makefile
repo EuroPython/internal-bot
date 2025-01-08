@@ -1,4 +1,5 @@
 DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run ./manage.py
+TEST_CMD=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
 
 
 help:
@@ -18,4 +19,4 @@ migrations:
 	$(DEV_CMD) makemigrations -n $(N)
 
 test:
-	cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest
+	$(TEST_CMD) -s -vv
