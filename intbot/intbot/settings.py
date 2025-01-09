@@ -292,6 +292,8 @@ elif DJANGO_ENV == "prod":
         "https://internal.europython.eu",
     ]
 
+    WEBHOOK_INTERNAL_TOKEN = os.environ["WEBHOOK_INTERNAL_TOKEN"]
+
 
 elif DJANGO_ENV == "build":
     # Currently used only for collecting staticfiles in docker
