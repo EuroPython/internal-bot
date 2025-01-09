@@ -66,7 +66,7 @@ class GithubDraftIssue:
 
 def fetch_github_item_details(item_id):
     headers = {
-        "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+        "Authorization": f"Bearer {settings.GITHUB_API_TOKEN}",
         "Content-Type": "application/json",
     }
     payload = {"query": query, "variables": {"itemId": item_id}}
