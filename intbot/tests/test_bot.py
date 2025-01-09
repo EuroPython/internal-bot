@@ -16,6 +16,7 @@ from django.utils import timezone
 # it seems to fix the issue and also speed up the test from ~6s down to 1s.
 # Thanks to (@gbdlin) for help with debugging.
 
+
 @pytest.fixture(autouse=True)
 def fix_async_db(request):
     """
@@ -45,7 +46,10 @@ def fix_async_db(request):
 
     We apologize in advance for the shitty implementation.
     """
-    if request.node.get_closest_marker("asyncio") is None or request.node.get_closest_marker("django_db") is None:
+    if (
+        request.node.get_closest_marker("asyncio") is None
+        or request.node.get_closest_marker("django_db") is None
+    ):
         # Only run for async tests that use the database
         yield
         return
