@@ -2,6 +2,7 @@ import hmac
 import json
 
 from core.models import Webhook
+from core.tasks import process_webhook
 from django.conf import settings
 from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -19,6 +20,7 @@ def internal_webhook_endpoint(request):
             source="internal",
             content=json.loads(request.body),
         )
+        process_webhook.enqueue(str(wh.uuid))
 
         return JsonResponse({"status": "created", "guid": wh.uuid})
 
