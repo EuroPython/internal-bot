@@ -14,6 +14,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f"Bot is ready. Logged in as {bot.user}")
+    poll_database.start()  # Start polling the database
 
 
 @bot.command()
