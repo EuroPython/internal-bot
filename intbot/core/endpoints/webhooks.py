@@ -28,7 +28,7 @@ def internal_webhook_endpoint(request):
 def verify_internal_webhook(request):
     """raise ValueError if incorrect token"""
 
-    if not "Authorization" in request.headers:
+    if "Authorization" not in request.headers:
         raise ValueError("Authorization token is missing")
 
     token = request.headers['Authorization']

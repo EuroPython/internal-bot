@@ -3,6 +3,7 @@
 # Test/Dev
 DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run --env-file .env -- ./manage.py
 TEST_CMD=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
+UV_RUN_DEV=cd intbot && DJANGO_ENV="dev" uv run
 
 # Docker
 DOCKER_RUN_WITH_PORT=docker run -p 4672:4672 --add-host=host.internal:host-gateway -e DJANGO_ENV="local_container" -it intbot:$(V)
@@ -20,6 +21,11 @@ help:
 	# First target is dummy so we you won't run anything by accident
 	@echo "Hello world!, Please check the file content for details"
 
+
+
+# Local development
+# =================
+
 server:
 	$(DEV_CMD) runserver 0.0.0.0:4672
 
@@ -32,11 +38,32 @@ migrate:
 migrations:
 	$(DEV_CMD) makemigrations -n $(N)
 
+bot:
+	$(DEV_CMD) run_bot
+
+
+# Test, lint, etc
+# ================
+
 test:
 	$(TEST_CMD) -s -vv
 
-bot:
-	$(DEV_CMD) run_bot
+
+lint:
+	# '.' because UV_RUN_DEV implies cd to intbot/
+	$(UV_RUN_DEV) ruff check .
+
+lint/fix:
+	# '.' because UV_RUN_DEV implies cd to intbot/
+	$(UV_RUN_DEV) ruff check --fix .
+
+format:
+	# '.' because UV_RUN_DEV implies cd to intbot/
+	$(UV_RUN_DEV) ruff format .
+
+type-check:
+	$(UV_RUN_DEV) mypy intbot/
+
 
 
 client/send_test_webhook:
@@ -44,6 +71,7 @@ client/send_test_webhook:
 
 
 # Targets to be run inside the container (for build/prod/deployments)
+# ===================================================================
 
 in-container/collectstatic:
 	DJANGO_ENV="build" python intbot/manage.py collectstatic --noinput
@@ -60,6 +88,7 @@ in-container/migrate:
 
 
 # Docker management targets
+# =========================
 
 docker/build:
 	docker build . -t intbot:$(current_git_hash)
@@ -69,7 +98,8 @@ docker/run/gunicorn:
 
 
 # Deploymenet targets
-#
+# ====================
+
 deploy/provision:
 	$(DEPLOY_CMD) playbooks/01_setup.yml
 	$(DEPLOY_CMD) playbooks/02_nginx.yml
