@@ -38,6 +38,9 @@ migrate:
 migrations:
 	$(DEV_CMD) makemigrations -n $(N)
 
+manage:
+	$(DEV_CMD) $(ARG)
+
 bot:
 	$(DEV_CMD) run_bot
 
@@ -85,6 +88,9 @@ in-container/bot:
 
 in-container/migrate:
 	$(MANAGE) migrate
+
+in-container/manage:
+	$(MANAGE) $(ARG)
 
 
 # Docker management targets
