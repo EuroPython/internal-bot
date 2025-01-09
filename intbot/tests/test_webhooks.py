@@ -2,6 +2,7 @@ import pytest
 from django.conf import settings
 from core.models import Webhook
 
+
 @pytest.mark.django_db
 def test_internal_wh_endpoint_checks_authorization_token(client):
     webhook_body = {
@@ -21,6 +22,7 @@ def test_internal_wh_endpoint_checks_authorization_token(client):
     assert response["Content-Type"] == "application/json"
     assert response.json()["status"] == "bad"
     assert response.json()["message"] == "Authorization token is missing"
+
 
 @pytest.mark.django_db
 def test_internal_wh_endpoint_fails_with_bad_token(client):
@@ -42,6 +44,7 @@ def test_internal_wh_endpoint_fails_with_bad_token(client):
     assert response["Content-Type"] == "application/json"
     assert response.json()["status"] == "bad"
     assert response.json()["message"] == "Token doesn't match"
+
 
 @pytest.mark.django_db
 def test_internal_wh_endpoint_works_with_correct_token(client):

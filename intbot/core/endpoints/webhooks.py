@@ -31,7 +31,7 @@ def verify_internal_webhook(request):
     if "Authorization" not in request.headers:
         raise ValueError("Authorization token is missing")
 
-    token = request.headers['Authorization']
+    token = request.headers["Authorization"]
 
     if not hmac.compare_digest(settings.WEBHOOK_INTERNAL_TOKEN, token):
         raise ValueError("Token doesn't match")

@@ -1,7 +1,7 @@
 """
 This file is currently used to test the test harness.
 
-It checks whether the tests 
+It checks whether the tests
  * are running
  * can access databse
  * can reach the views
