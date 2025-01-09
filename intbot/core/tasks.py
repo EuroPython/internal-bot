@@ -24,7 +24,7 @@ def process_internal_webhook(wh: Webhook):
         channel_id=settings.DISCORD_TEST_CHANNEL_ID,
         channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"Webhook content: {wh.content}",
-        # Mark as unsend - to be sent with the next batch
+        # Mark as not sent - to be sent with the next batch
         sent_at=None,
     )
     wh.processed_at = timezone.now()
