@@ -44,6 +44,9 @@ manage:
 bot:
 	$(DEV_CMD) run_bot
 
+worker:
+	$(DEV_CMD) db_worker -v 2
+
 
 # Test, lint, etc
 # ================

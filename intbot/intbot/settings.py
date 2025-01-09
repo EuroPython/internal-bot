@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third party apps
     "django_extensions",
+    "django_tasks",
+    "django_tasks.backends.database",
     # Project apps
     "core",
 ]
@@ -127,6 +129,12 @@ if DJANGO_ENV == "dev":
         }
     }
 
+    TASKS = {
+        "default": {
+            "BACKEND": "django_tasks.backends.database.DatabaseBackend",
+        }
+    }
+
     WEBHOOK_INTERNAL_TOKEN = "dev-token"
 
     # This is only needed if you end up running the bot locally, hence it
@@ -135,9 +143,16 @@ if DJANGO_ENV == "dev":
     # one from the developer portal.
     # If you run it locally, you probably want to run it against your own test
     # bot and a test server.
-    DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
-    if not DISCORD_BOT_TOKEN:
-        warnings.warn("DISCORD_BOT_TOKEN not set")
+
+    def warn_if_missing(name, default=""):
+        value = os.environ.get(name, default)
+        if not value:
+            warnings.warn(f"{name} not set")
+
+    DISCORD_TEST_CHANNEL_ID = warn_if_missing("DISCORD_TEST_CHANNEL_ID", "")
+    DISCORD_TEST_CHANNEL_NAME = warn_if_missing("DISCORD_TEST_CHANNEL_NAME", "")
+    DISCORD_BOT_TOKEN = warn_if_missing("DISCORD_BOT_TOKEN", "")
+
 
 elif DJANGO_ENV == "test":
     DEBUG = True
@@ -158,6 +173,22 @@ elif DJANGO_ENV == "test":
 
     WEBHOOK_INTERNAL_TOKEN = "test-random-token"
 
+    TASKS = {
+        "default": {
+            "BACKEND": "django_tasks.backends.immediate.ImmediateBackend",
+            # This setting doesn't really make sense in this context, but it
+            # makes it work in the test environment...
+            # TODO(artcz): Let's figure out later why.
+            # NOTE: in django-tasks tests the test harness seem to be quite
+            # different so maybe there's also something we can check in the
+            # library itself.
+            "ENQUEUE_ON_COMMIT": False,
+        }
+    }
+
+    DISCORD_TEST_CHANNEL_ID = "12345"
+    DISCORD_TEST_CHANNEL_NAME = "#test-channel"
+
 
 elif DJANGO_ENV == "local_container":
     DEBUG = False
@@ -176,6 +207,12 @@ elif DJANGO_ENV == "local_container":
             "PASSWORD": "intbot_password",
             "HOST": "host.internal",
             "PORT": "14672",
+        }
+    }
+
+    TASKS = {
+        "default": {
+            "BACKEND": "django_tasks.backends.database.DatabaseBackend",
         }
     }
 
@@ -220,6 +257,12 @@ elif DJANGO_ENV == "prod":
         }
     }
 
+    TASKS = {
+        "default": {
+            "BACKEND": "django_tasks.backends.database.DatabaseBackend",
+        }
+    }
+
     # For 500 errors to appear on stderr
     # For now it's good for docker, in the future sentry/or rollabar should be
     # here
@@ -242,6 +285,8 @@ elif DJANGO_ENV == "prod":
     }
 
     DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
+    DISCORD_TEST_CHANNEL_ID = os.environ["DISCORD_TEST_CHANNEL_ID"]
+    DISCORD_TEST_CHANNEL_NAME = os.environ["DISCORD_TEST_CHANNEL_NAME"]
 
     CSRF_TRUSTED_ORIGINS = [
         "https://internal.europython.eu",
