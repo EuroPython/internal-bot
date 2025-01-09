@@ -49,7 +49,14 @@ bot:
 # ================
 
 test:
-	$(TEST_CMD) -s -vv
+	$(TEST_CMD) -s -v
+
+test/k:
+	$(TEST_CMD) -s -v -k $(K)
+
+test/fast:
+	# skip slow tests
+	$(TEST_CMD) -s -v -m "not slow"
 
 
 lint:

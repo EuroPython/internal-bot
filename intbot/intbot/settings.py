@@ -148,7 +148,7 @@ elif DJANGO_ENV == "test":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": "intbot_database_dev",
+            "NAME": "intbot_database_test",
             "USER": "intbot_user",
             "PASSWORD": "intbot_password",
             "HOST": "localhost",

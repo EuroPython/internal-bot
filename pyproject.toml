@@ -19,4 +19,5 @@ dependencies = [
     "whitenoise>=6.8.2",
     "gunicorn>=23.0.0",
     "django-stubs>=5.1.1",
+    "pdbpp>=0.10.3",
 ]
