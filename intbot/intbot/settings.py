@@ -152,6 +152,8 @@ if DJANGO_ENV == "dev":
     DISCORD_TEST_CHANNEL_ID = warn_if_missing("DISCORD_TEST_CHANNEL_ID", "")
     DISCORD_TEST_CHANNEL_NAME = warn_if_missing("DISCORD_TEST_CHANNEL_NAME", "")
     DISCORD_BOT_TOKEN = warn_if_missing("DISCORD_BOT_TOKEN", "")
+    GITHUB_TOKEN = warn_if_missing("GITHUB_TOKEN", "")
+    GITHUB_WEBHOOK_SECRET_TOKEN = warn_if_missing("GITHUB_WEBHOOK_SECRET_TOKEN", "")
 
 
 elif DJANGO_ENV == "test":
@@ -186,8 +188,11 @@ elif DJANGO_ENV == "test":
         }
     }
 
+    DISCORD_BOT_TOKEN = "test-token"
     DISCORD_TEST_CHANNEL_ID = "12345"
     DISCORD_TEST_CHANNEL_NAME = "#test-channel"
+    GITHUB_TOKEN = "github-test-token"
+    GITHUB_WEBHOOK_SECRET_TOKEN = "github-webhook-secret-token-token"
 
 
 elif DJANGO_ENV == "local_container":
@@ -293,6 +298,8 @@ elif DJANGO_ENV == "prod":
     ]
 
     WEBHOOK_INTERNAL_TOKEN = os.environ["WEBHOOK_INTERNAL_TOKEN"]
+    GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+    GITHUB_WEBHOOK_SECRET_TOKEN = os.environ["GITHUB_WEBHOOK_SECRET_TOKEN"]
 
 
 elif DJANGO_ENV == "build":

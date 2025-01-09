@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0001_initial_migration'),
+        ("core", "0001_initial_migration"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='webhook',
-            name='meta',
+            model_name="webhook",
+            name="meta",
             field=models.JSONField(default=dict),
         ),
     ]
