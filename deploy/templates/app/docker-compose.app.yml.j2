@@ -42,6 +42,19 @@ services:
         condition: service_healthy
         restart: true
 
+  worker:
+    image: "intbot:{{ app_version }}"
+    command: "make in-container/worker"
+    env_file:
+      - intbot.env
+    environment:
+      - APP_VERSION={{ app_version[:8] }}
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+
 volumes:
   pgdata:
 

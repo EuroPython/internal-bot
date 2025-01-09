@@ -96,6 +96,9 @@ in-container/gunicorn:
 in-container/bot:
 	$(MANAGE) run_bot
 
+in-container/worker:
+	$(MANAGE) db_worker -v 2
+
 in-container/migrate:
 	$(MANAGE) migrate
 
