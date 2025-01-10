@@ -31,6 +31,15 @@ async def source(ctx):
 
 
 @bot.command()
+async def wiki(ctx):
+    await ctx.send(
+        "Please add it to the wiki: "
+        "[ep2025-wiki.europython.eu](https://ep2025-wiki.europython.eu)",
+        suppress_embeds=True,
+    )
+
+
+@bot.command()
 async def version(ctx):
     app_version = settings.APP_VERSION
     await ctx.send(f"Version: {app_version}")

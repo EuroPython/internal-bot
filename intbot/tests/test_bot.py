@@ -6,7 +6,7 @@ from django.db import connections
 
 import pytest
 from asgiref.sync import sync_to_async
-from core.bot.main import ping, poll_database, qlen, source, version
+from core.bot.main import ping, poll_database, qlen, source, version, wiki
 from core.models import DiscordMessage
 from django.utils import timezone
 
@@ -82,6 +82,22 @@ async def test_ping_command():
 
     # Assert that the command sent the expected message
     ctx.send.assert_called_once_with("Pong!")
+
+
+@pytest.mark.asyncio
+async def test_wiki_command():
+    # Mock context
+    ctx = AsyncMock()
+
+    # Call the command
+    await wiki(ctx)
+
+    # Assert that the command sent the expected message
+    ctx.send.assert_called_once_with(
+        "Please add it to the wiki: "
+        "[ep2025-wiki.europython.eu](https://ep2025-wiki.europython.eu)",
+        suppress_embeds=True,
+    )
 
 
 @pytest.mark.asyncio
