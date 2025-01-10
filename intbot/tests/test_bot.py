@@ -16,7 +16,6 @@ from django.utils import timezone
 # it seems to fix the issue and also speed up the test from ~6s down to 1s.
 # Thanks to (@gbdlin) for help with debugging.
 
-
 @pytest.fixture(autouse=True)
 def fix_async_db(request):
     """
@@ -126,7 +125,6 @@ async def test_qlen_command_returns_zero_if_no_messages():
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
 @pytest.mark.django_db
 async def test_qlen_command_returns_zero_if_all_messages_sent():
     # Mock context
@@ -141,7 +139,6 @@ async def test_qlen_command_returns_zero_if_all_messages_sent():
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
 @pytest.mark.django_db
 async def test_qlen_command_correctly_counts_unsent_messags():
     # Mock context
@@ -161,11 +158,8 @@ async def test_qlen_command_correctly_counts_unsent_messags():
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
 @pytest.mark.django_db
 async def test_polling_messages_sends_nothing_without_messages():
-    # NOTE: For some reason this test slows down the testsuite a bit
-    # breakpoint()
     mock_channel = AsyncMock()
     mock_channel.send = AsyncMock()
 
@@ -176,10 +170,8 @@ async def test_polling_messages_sends_nothing_without_messages():
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
 @pytest.mark.django_db
 async def test_polling_messages_sends_nothing_if_all_messages_are_sent():
-    # NOTE: For some reason this test slows down the testsuite a bit
     mock_channel = AsyncMock()
     mock_channel.send = AsyncMock()
     await DiscordMessage.objects.acreate(sent_at=timezone.now())
@@ -191,10 +183,8 @@ async def test_polling_messages_sends_nothing_if_all_messages_are_sent():
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
 @pytest.mark.django_db
 async def test_polling_messages_sends_message_if_not_sent_and_sets_sent_at():
-    # NOTE: For some reason this test slows down the testsuite a bit
     start = timezone.now()
     dm = await DiscordMessage.objects.acreate(
         channel_id="1234",
