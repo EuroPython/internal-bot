@@ -1,8 +1,12 @@
-from core.models import DiscordMessage, Webhook
+import logging
+
 from core.integrations.github import parse_github_webhook
+from core.models import DiscordMessage, Webhook
 from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
+
+logger = logging.getLogger()
 
 
 @task
@@ -38,7 +42,14 @@ def process_github_webhook(wh: Webhook):
     if wh.source != "github":
         raise ValueError("Incorrect wh.source = {wh.source}")
 
-    message, event_action = parse_github_webhook(headers=wh.meta, content=wh.content)
+    try:
+        message, event_action = parse_github_webhook(
+            headers=wh.meta, content=wh.content
+        )
+    except ValueError as e:
+        # Downgrading to info because it's most likely event not supported
+        logger.info(f"Not processing Github Webhook {wh.uuid}: {e}")
+        return
 
     # NOTE WHERE SHOULD WE GET THE CHANNEL ID FROM?
     DiscordMessage.objects.create(

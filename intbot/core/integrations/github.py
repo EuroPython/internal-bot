@@ -42,7 +42,7 @@ def parse_github_webhook(headers: dict, content: dict) -> tuple[str, str]:
         return "", ""
 
     else:
-        raise ValueError(f"Event {event} not supported")
+        raise ValueError(f"Event `{event}` not supported")
 
 
 @dataclasses.dataclass
