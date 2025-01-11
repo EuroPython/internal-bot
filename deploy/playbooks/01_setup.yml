@@ -1,14 +1,14 @@
 - name: Deploy nginx and Let's Encrypt SSL certificate
   hosts: intbot_setup
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   tasks:
     - name: Install Docker dependencies
-      apt:
+      ansible.builtin.apt:
         name: "{{ package }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         package:
           - apt-transport-https
@@ -21,22 +21,22 @@
     - name: Install Docker
       block:
         - name: Add Docker GPG key
-          apt_key:
+          ansible.builtin.apt_key:
             url: https://download.docker.com/linux/ubuntu/gpg
             state: present
 
         - name: Add Docker repository
-          apt_repository:
+          ansible.builtin.apt_repository:
             repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
             state: present
 
         - name: Install Docker
-          apt:
+          ansible.builtin.apt:
             name: docker-ce
             state: present
 
     - name: Combine non-root users to a single list
-      set_fact:
+      ansible.builtin.set_fact:
         non_root_user_names: ["{{ nginx_user }}", "{{ app_user }}"]
 
     - name: Create non-root users
@@ -45,10 +45,10 @@
           ansible.builtin.user:
             name: "{{ username }}"
             shell: "/bin/bash"
-            generate_ssh_key: yes
+            generate_ssh_key: true
             ssh_key_type: ed25519
             ssh_key_comment: "{{ username }}@{{ inventory_hostname }}"
-            create_home: yes
+            create_home: true
           loop: "{{ non_root_user_names }}"
           loop_control:
             loop_var: username
@@ -59,36 +59,37 @@
             state: directory
             owner: "{{ username }}"
             group: "{{ username }}"
+            mode: "0755"
           loop: "{{ non_root_user_names }}"
           loop_control:
             loop_var: username
 
         - name: Then copy the authorized_keys from root so you can ssh later to the user
-          copy:
+          ansible.builtin.copy:
             src: "/root/.ssh/authorized_keys"
             dest: "/home/{{ username }}/.ssh/authorized_keys"
             owner: "{{ username }}"
             group: "{{ username }}"
             mode: "0600"
-            remote_src: "yes"
+            remote_src: true
           loop: "{{ non_root_user_names }}"
           loop_control:
             loop_var: username
 
         - name: Add the non root users (both nginx and app) to docker group
-          user:
+          ansible.builtin.user:
             name: "{{ username }}"
             groups: docker
-            append: yes
+            append: true
           loop: "{{ non_root_user_names }}"
           loop_control:
             loop_var: username
 
     - name: Read the deploy public key
-      slurp:
+      ansible.builtin.slurp:
         src: "/home/{{ app_user }}/.ssh/id_ed25519.pub"
       register: deploy_key
 
     - name: Display the public key
-      debug:
+      ansible.builtin.debug:
         msg: "For private repositories, make sure to put this key as deploy key on github:  {{ deploy_key.content | b64decode }}"

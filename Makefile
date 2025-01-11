@@ -15,6 +15,7 @@ CI_RUN=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="ci"
 
 # Deployment
 DEPLOY_CMD=cd deploy && uvx --from "ansible-core" ansible-playbook -i hosts.yml
+DEPLOY_LINT_CMD=cd deploy && uvx --from "ansible-lint" ansible-lint
 
 # mostly useful for docker and deployment
 current_git_hash=$(shell git rev-parse HEAD)
@@ -158,3 +159,8 @@ deploy/app:
 	@echo "Deploying version $(V) to a remote server"
 	$(DEPLOY_CMD) playbooks/03_app.yml --extra-vars "app_version=$(V)"
 	$(DEPLOY_CMD) playbooks/04_cron.yml
+
+deploy/lint:
+	$(DEPLOY_LINT_CMD) playbooks/01_setup.yml
+	$(DEPLOY_LINT_CMD) playbooks/02_nginx.yml
+	$(DEPLOY_LINT_CMD) playbooks/03_app.yml
