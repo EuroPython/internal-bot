@@ -84,6 +84,8 @@ CONTENT_TYPE_MAP = {
 
 
 class GithubProjectV2Item:
+    # NOTE: This might be something for pydantic schemas in the future
+
     def __init__(self, content: dict):
         self.content = content
 
@@ -107,30 +109,30 @@ class GithubProjectV2Item:
         return self.content["projects_v2_item"]["content_type"]
 
     def node_id(self):
-        # NOTE(artcz): This is more relevant, because of how the graphql query
-        # above is constructed.
+        # NOTE(artcz): This is relevant, because of how the graphql query above
+        # is constructed.
         # Using node_id, which is an id of a ProjectV2Item we can get both
         # DraftIssue and Issue from one query.
-        # If we use the content_node_id we need to adjust the query as that ID
-        # points us directly either an Issue or DraftIssue
+        # If we use the content_node_id we would probably need two separate
+        # ways of getting that data.
         return self.content["projects_v2_item"]["node_id"]
-
-    def content_node_id(self):
-        return self.content["projects_v2_item"]["content_node_id"]
 
     def changes(self) -> dict:
         if "changes" in self.content:
             fv = self.content["changes"]["field_value"]
             field_name = fv["field_name"]
             field_type = fv["field_type"]
+
             if field_type == "date":
                 changed_from = (
                     fv["from"].split("T")[0] if fv["from"] is not None else "None"
                 )
                 changed_to = fv["to"].split("T")[0] if fv["to"] is not None else "None"
+
             elif field_type == "single_select":
                 changed_from = fv["from"]["name"] if fv["from"] is not None else "None"
                 changed_to = fv["to"]["name"] if fv["to"] is not None else "None"
+
             else:
                 changed_from = "None"
                 changed_to = "None"
@@ -152,8 +154,9 @@ class GithubProjectV2Item:
         changes = self.changes()
 
         if changes:
-            details = "**{field}** of **{obj}** from **{from}** to **{to}**".format
-            details = details(**{"obj": github_object.as_discord_message(), **changes})
+            details = "**{field}** of **{obj}** from **{from}** to **{to}**".format(
+                **{"obj": github_object.as_discord_message(), **changes}
+            )
 
         else:
             details = github_object.as_discord_message()

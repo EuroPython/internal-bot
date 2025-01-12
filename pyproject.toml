@@ -21,12 +21,18 @@ dependencies = [
     "django-stubs>=5.1.1",
     "pdbpp>=0.10.3",
     "pytest-cov>=6.0.0",
+    "pytest-socket>=0.7.0",
+    "respx>=0.22.0",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = [
     "intbot"
 ]
+
+# Disable attempts of using the internet in tests, but allow connection to the
+# database
+addopts = "--disable-socket --allow-unix-socket"
 
 [tool.coverage.run]
 branch = true
