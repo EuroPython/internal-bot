@@ -20,4 +20,25 @@ dependencies = [
     "gunicorn>=23.0.0",
     "django-stubs>=5.1.1",
     "pdbpp>=0.10.3",
+    "pytest-cov>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "intbot"
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "*/migrations/*",
+    "manage.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if 0:",
+    "def __repr__",
+    "def __str__",
 ]

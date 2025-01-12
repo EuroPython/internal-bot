@@ -2,7 +2,7 @@
 
 # Test/Dev
 DEV_CMD=cd intbot && DJANGO_ENV="dev" uv run --env-file .env -- ./manage.py
-TEST_CMD=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
+TEST_CMD=DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" uv run pytest --nomigrations
 UV_RUN_DEV=cd intbot && DJANGO_ENV="dev" uv run
 
 # Docker
@@ -60,6 +60,9 @@ test/k:
 test/fast:
 	# skip slow tests
 	$(TEST_CMD) -s -v -m "not slow"
+
+test/cov:
+	$(TEST_CMD) --cov=. --cov-report=term
 
 
 lint:
