@@ -113,7 +113,7 @@ in-container/manage:
 # =========================
 
 docker/build:
-	docker build . -t intbot:$(current_git_hash) intbot:latest
+	docker build . -t intbot:$(current_git_hash) -t intbot:latest
 
 docker/run/gunicorn:
 	$(DOCKER_RUN_WITH_PORT) make in-container/gunicorn
