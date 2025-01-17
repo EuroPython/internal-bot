@@ -22,7 +22,7 @@
 
     - name: Make sure the directory structure for certs exist
       ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/data/cerbot/conf"
+        path: "/home/{{ ansible_user }}/data/certbot/conf"
         state: directory
         mode: "0755"
 
