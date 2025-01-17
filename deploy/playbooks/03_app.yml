@@ -18,7 +18,7 @@
       ansible.builtin.template:
         src: app/Makefile.app.j2
         dest: ./Makefile
-        mode: "0644"
+        mode: "0640"
 
     - name: Set up docker-compose.yml for the app
       ansible.builtin.template:
