@@ -11,6 +11,7 @@ DOCKER_RUN=docker run --add-host=host.internal:host-gateway -e DJANGO_ENV="test"
 MANAGE=cd intbot && ./manage.py
 # In container we run with migrations
 CONTAINER_TEST_CMD=DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" pytest --migrations
+CI_RUN=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="ci"
 
 # Deployment
 DEPLOY_CMD=cd deploy && uvx --from "ansible-core" ansible-playbook -i hosts.yml
@@ -114,11 +115,11 @@ in-container/manage:
 in-container/tests:
 	$(CONTAINER_TEST_CMD) -vvv
 
-in-container/lint:
-	cd intbot && ruff check .
+ci/lint:
+	$(CI_RUN) ruff check .
 
-in-container/type-check:
-	cd intbot && mypy intbot
+ci/type-check:
+	$(CI_RUN) mypy intbot
 
 
 # Docker management targets
@@ -134,8 +135,8 @@ docker/run/tests:
 	$(DOCKER_RUN) make in-container/tests
 
 docker/run/lint:
-	$(DOCKER_RUN) make in-container/lint
-	$(DOCKER_RUN) make in-container/type-check
+	$(DOCKER_RUN) make ci/lint
+	$(DOCKER_RUN) make ci/type-check
 
 
 # Deploymenet targets
