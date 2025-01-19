@@ -114,6 +114,12 @@ in-container/manage:
 in-container/tests:
 	$(CONTAINER_TEST_CMD) -vvv
 
+in-container/lint:
+	cd intbot && ruff check .
+
+in-container/type-check:
+	cd intbot && mypy intbot
+
 
 # Docker management targets
 # =========================
@@ -126,6 +132,10 @@ docker/run/gunicorn:
 
 docker/run/tests:
 	$(DOCKER_RUN) make in-container/tests
+
+docker/run/lint:
+	$(DOCKER_RUN) make in-container/lint
+	$(DOCKER_RUN) make in-container/type-check
 
 
 # Deploymenet targets
