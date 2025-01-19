@@ -21,8 +21,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: ssh keyscan
-        run: ssh-keyscan "internal.europython.eu" > ~/.ssh/known_hosts
+      - name: Set up ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan "internal.europython.eu" >> ~/.ssh/known_hosts
 
       - name: Run deployment
         run: make deploy/app
