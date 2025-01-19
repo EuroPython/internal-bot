@@ -1,0 +1,60 @@
+name: Build Test and Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-test-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build Docker image
+      run: |
+        make docker/build
+
+    - name: Run Docker container for tests
+      run: |
+        docker run --rm \
+          -e DJANGO_SETTINGS_MODULE=intbot.settings \
+          -e DATABASE_URL=postgres://testuser:testpassword@localhost:5432/testdb \
+          --network host \
+          intbot \
+          make in-container/tests
+
+    - name: Run Docker container for lint
+      run: |
+        docker run --rm intbot make ci/lint
+        docker run --rm intbot make ci/type-check
+
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_USER: intbot_user
+          POSTGRES_PASSWORD: intbot_password
+          POSTGRES_DB: intbot_database_test
+        ports:
+          - 14672:5432
+        options: >-
+          --health-cmd="pg_isready -U intbot_user -d intbot_database_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+

@@ -7,7 +7,11 @@ UV_RUN_DEV=cd intbot && DJANGO_ENV="dev" uv run
 
 # Docker
 DOCKER_RUN_WITH_PORT=docker run -p 4672:4672 --add-host=host.internal:host-gateway -e DJANGO_ENV="local_container" -it intbot:$(V)
+DOCKER_RUN=docker run --add-host=host.internal:host-gateway -e DJANGO_ENV="test" -it intbot:$(V)
 MANAGE=cd intbot && ./manage.py
+# In container we run with migrations
+CONTAINER_TEST_CMD=DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="test" pytest --migrations
+CI_RUN=cd intbot && DJANGO_SETTINGS_MODULE="intbot.settings" DJANGO_ENV="ci"
 
 # Deployment
 DEPLOY_CMD=cd deploy && uvx --from "ansible-core" ansible-playbook -i hosts.yml
@@ -108,15 +112,31 @@ in-container/migrate:
 in-container/manage:
 	$(MANAGE) $(ARG)
 
+in-container/tests:
+	$(CONTAINER_TEST_CMD) -vvv
+
+ci/lint:
+	$(CI_RUN) ruff check .
+
+ci/type-check:
+	$(CI_RUN) mypy intbot
+
 
 # Docker management targets
 # =========================
 
 docker/build:
-	docker build . -t intbot:$(current_git_hash)
+	docker build . -t intbot:$(current_git_hash) -t intbot:latest
 
 docker/run/gunicorn:
 	$(DOCKER_RUN_WITH_PORT) make in-container/gunicorn
+
+docker/run/tests:
+	$(DOCKER_RUN) make in-container/tests
+
+docker/run/lint:
+	$(DOCKER_RUN) make ci/lint
+	$(DOCKER_RUN) make ci/type-check
 
 
 # Deploymenet targets

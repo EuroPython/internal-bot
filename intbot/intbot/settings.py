@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 import warnings
+from typing import Any
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -111,6 +112,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 DJANGO_ENV = os.environ["DJANGO_ENV"]
 APP_VERSION = os.environ.get("APP_VERSION", "latest")[:8]
+
+# Just to make mypy happy
+TASKS: dict[str, Any]
 
 if DJANGO_ENV == "dev":
     DEBUG = True
@@ -304,6 +308,9 @@ elif DJANGO_ENV == "prod":
 
 elif DJANGO_ENV == "build":
     # Currently used only for collecting staticfiles in docker
+    DEBUG = False
+
+elif DJANGO_ENV == "ci":
     DEBUG = False
 
 else:

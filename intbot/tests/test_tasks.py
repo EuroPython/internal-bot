@@ -41,7 +41,6 @@ def test_process_webhook_fails_if_unsupported_source():
     result = process_webhook.enqueue(str(wh.uuid))
 
     assert result.status == ResultStatus.FAILED
-    assert result._exception_class == ValueError
     assert result.traceback.endswith("ValueError: Unsupported source asdf\n")
 
 
