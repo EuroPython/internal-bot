@@ -15,6 +15,9 @@
       ansible.builtin.command:
         chdir: /tmp/src
         cmd: "/usr/bin/make docker/build V={{ app_version }}"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Create a server Makefile to manage app tasks
       ansible.builtin.template:
@@ -54,13 +57,22 @@
       ansible.builtin.command:
         chdir: "{{ ansible_user_dir }}"
         cmd: "docker compose up -d"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Migrate on prod
       ansible.builtin.command:
         chdir: "{{ ansible_user_dir }}"
         cmd: "/usr/bin/make prod/migrate"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Restart everything and finish
       ansible.builtin.command:
         chdir: "{{ ansible_user_dir }}"
         cmd: "docker compose up -d"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
