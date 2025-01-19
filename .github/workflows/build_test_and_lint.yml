@@ -41,6 +41,7 @@ jobs:
     - name: Run Docker container for lint
       run: |
         docker run --rm intbot make in-container/lint
+        docker run --rm intbot make in-container/type-check
 
     services:
       postgres:
