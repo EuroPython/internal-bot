@@ -12,7 +12,7 @@
     - name: Build with a given commit hash
       # This will be stored in local registry, and available as version to docker-compose
       # where we can just reference correct version
-      ansible.builtin.shell: 
+      ansible.builtin.command:
         chdir: /tmp/src
         cmd: "/usr/bin/make docker/build V={{ app_version }}"
 
@@ -52,15 +52,15 @@
 
     - name: Start docker compose to see if everything is running
       ansible.builtin.command:
-        chdir: {{ ansible_user_dir }}
+        chdir: "{{ ansible_user_dir }}"
         cmd: "docker compose up -d"
 
     - name: Migrate on prod
-      ansible.builtin.shell: 
-        chdir: /tmp/src
+      ansible.builtin.command:
+        chdir: "{{ ansible_user_dir }}"
         cmd: "/usr/bin/make prod/migrate"
 
     - name: Restart everything and finish
       ansible.builtin.command:
-        chdir: {{ ansible_user_dir }}
+        chdir: "{{ ansible_user_dir }}"
         cmd: "docker compose up -d"

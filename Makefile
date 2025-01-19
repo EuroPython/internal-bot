@@ -160,7 +160,7 @@ deploy/app:
 	$(DEPLOY_CMD) playbooks/03_app.yml --extra-vars "app_version=$(V)"
 	$(DEPLOY_CMD) playbooks/04_cron.yml
 
-deploy/lint:
+lint/deploy:
 	$(DEPLOY_LINT_CMD) playbooks/01_setup.yml
 	$(DEPLOY_LINT_CMD) playbooks/02_nginx.yml
 	$(DEPLOY_LINT_CMD) playbooks/03_app.yml
