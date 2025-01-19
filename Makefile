@@ -151,7 +151,7 @@ deploy/app:
 	@echo "Deploying version $(V) to a remote server"
 	$(DEPLOY_CMD) playbooks/03_app.yml --extra-vars "app_version=$(V)"
 
-deploy/lint:
+lint/deploy:
 	$(DEPLOY_LINT_CMD) playbooks/01_setup.yml
 	$(DEPLOY_LINT_CMD) playbooks/02_nginx.yml
 	$(DEPLOY_LINT_CMD) playbooks/03_app.yml
