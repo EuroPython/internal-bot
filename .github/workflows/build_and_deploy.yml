@@ -41,6 +41,7 @@ jobs:
       run: |
         docker run --rm intbot make ci/lint
         docker run --rm intbot make ci/type-check
+        docker run --rm intbot make lint/deploy
 
     services:
       postgres:
