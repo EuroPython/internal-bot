@@ -306,5 +306,8 @@ elif DJANGO_ENV == "build":
     # Currently used only for collecting staticfiles in docker
     DEBUG = False
 
+elif DJANGO_ENV == "ci":
+    DEBUG = False
+
 else:
     raise ValueError(f"Unsupported DJANGO_ENV `{DJANGO_ENV}`")
