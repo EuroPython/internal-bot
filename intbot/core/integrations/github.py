@@ -3,7 +3,38 @@ import dataclasses
 import httpx
 from django.conf import settings
 
+from core.models import Webhook
+
 GITHUB_API_URL = "https://api.github.com/graphql"
+
+
+class GithubRepositories:
+    website_repo = ...
+    bot_repo = ...
+
+
+class GithubProjects:
+    board_project = ...
+    ep2025_project = ...
+    em_project = ...
+
+
+class GithubWebhook:
+
+    def __init__(self, headers, content):
+        self.headers = headers
+        self.content = content
+
+    @classmethod
+    def from_webhook(cls, wh: Webhook):
+        return cls(headers=wh.meta, content=wh.content)
+
+    def get_project(self):
+        ...
+
+    def get_repository(self):
+        ...
+
 
 # GraphQL query
 query = """

@@ -1,8 +1,8 @@
 import logging
 
 from core.integrations.github import parse_github_webhook
+from core.bot.channel_router import discord_channel_router
 from core.models import DiscordMessage, Webhook
-from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
 
@@ -27,9 +27,13 @@ def process_internal_webhook(wh: Webhook):
     if wh.source != "internal":
         raise ValueError("Incorrect wh.source = {wh.source}")
 
+    channel = discord_channel_router(wh)
+
     DiscordMessage.objects.create(
-        channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
+        channel_id=channel.channel_id,
+        channel_name=channel.channel_name,
+        # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
+        # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"Webhook content: {wh.content}",
         # Mark as not sent - to be sent with the next batch
         sent_at=None,
@@ -51,10 +55,13 @@ def process_github_webhook(wh: Webhook):
         logger.info(f"Not processing Github Webhook {wh.uuid}: {e}")
         return
 
-    # NOTE WHERE SHOULD WE GET THE CHANNEL ID FROM?
+    channel = discord_channel_router(wh)
+
     DiscordMessage.objects.create(
-        channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
+        channel_id=channel.channel_id,
+        channel_name=channel.channel_name,
+        # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
+        # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"GitHub: {message}",
         # Mark as unsend - to be sent with the next batch
         sent_at=None,

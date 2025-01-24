@@ -116,6 +116,39 @@ APP_VERSION = os.environ.get("APP_VERSION", "latest")[:8]
 # Just to make mypy happy
 TASKS: dict[str, Any]
 
+
+# There are bunch of settings that we can skip on dev/testing environments if
+# are not used, but should be present on prod/staging deployments.
+# Instead of repeating them per-env below, they go here.
+def get(name) -> str:
+    value = os.environ.get(name)
+
+    if DJANGO_ENV == "prod":
+        if value is None:
+            raise ValueError(f"{name} is not set")
+
+    elif DJANGO_ENV == "test":
+        pass
+    else:
+        warnings.warn(f"{name} not set")
+
+    return value or ""
+
+# Discord
+# This is only needed if you end up running the bot locally, hence it
+# doesn't fail explicilty – however it does emit a warning.
+# Please check the documentation and/or current online guides how to get
+# one from the developer portal.
+# If you run it locally, you probably want to run it against your own test
+# bot and a test server.
+DISCORD_TEST_CHANNEL_ID = get("DISCORD_TEST_CHANNEL_ID")
+DISCORD_TEST_CHANNEL_NAME = get("DISCORD_TEST_CHANNEL_NAME")
+DISCORD_BOT_TOKEN = get("DISCORD_BOT_TOKEN")
+
+# Github
+GITHUB_API_TOKEN = get("GITHUB_API_TOKEN")
+GITHUB_WEBHOOK_SECRET_TOKEN = get("GITHUB_WEBHOOK_SECRET_TOKEN")
+
 if DJANGO_ENV == "dev":
     DEBUG = True
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
@@ -141,23 +174,6 @@ if DJANGO_ENV == "dev":
 
     WEBHOOK_INTERNAL_TOKEN = "dev-token"
 
-    # This is only needed if you end up running the bot locally, hence it
-    # doesn't fail explicilty – however it does emit a warning.
-    # Please check the documentation and/or current online guides how to get
-    # one from the developer portal.
-    # If you run it locally, you probably want to run it against your own test
-    # bot and a test server.
-
-    def warn_if_missing(name, default=""):
-        value = os.environ.get(name, default)
-        if not value:
-            warnings.warn(f"{name} not set")
-
-    DISCORD_TEST_CHANNEL_ID = warn_if_missing("DISCORD_TEST_CHANNEL_ID", "")
-    DISCORD_TEST_CHANNEL_NAME = warn_if_missing("DISCORD_TEST_CHANNEL_NAME", "")
-    DISCORD_BOT_TOKEN = warn_if_missing("DISCORD_BOT_TOKEN", "")
-    GITHUB_API_TOKEN = warn_if_missing("GITHUB_API_TOKEN", "")
-    GITHUB_WEBHOOK_SECRET_TOKEN = warn_if_missing("GITHUB_WEBHOOK_SECRET_TOKEN", "")
 
 
 elif DJANGO_ENV == "test":
@@ -293,17 +309,10 @@ elif DJANGO_ENV == "prod":
         },
     }
 
-    DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
-    DISCORD_TEST_CHANNEL_ID = os.environ["DISCORD_TEST_CHANNEL_ID"]
-    DISCORD_TEST_CHANNEL_NAME = os.environ["DISCORD_TEST_CHANNEL_NAME"]
-
     CSRF_TRUSTED_ORIGINS = [
         "https://internal.europython.eu",
     ]
 
-    WEBHOOK_INTERNAL_TOKEN = os.environ["WEBHOOK_INTERNAL_TOKEN"]
-    GITHUB_API_TOKEN = os.environ["GITHUB_API_TOKEN"]
-    GITHUB_WEBHOOK_SECRET_TOKEN = os.environ["GITHUB_WEBHOOK_SECRET_TOKEN"]
 
 
 elif DJANGO_ENV == "build":
