@@ -18,6 +18,10 @@ class Webhook(models.Model):
 
     content = models.JSONField()
 
+    # Sometimes processing the webhook requires setting up or downloading extra
+    # information from other sources. This is the field to put that data in.
+    extra = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     processed_at = models.DateTimeField(blank=True, null=True)

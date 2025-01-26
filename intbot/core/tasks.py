@@ -1,6 +1,6 @@
 import logging
 
-from core.integrations.github import parse_github_webhook
+from core.integrations.github import parse_github_webhook, prep_github_webhook
 from core.bot.channel_router import discord_channel_router
 from core.models import DiscordMessage, Webhook
 from django.utils import timezone
@@ -47,14 +47,13 @@ def process_github_webhook(wh: Webhook):
         raise ValueError("Incorrect wh.source = {wh.source}")
 
     try:
-        message, event_action = parse_github_webhook(
-            headers=wh.meta, content=wh.content
-        )
+        wh = prep_github_webhook(wh)
     except ValueError as e:
         # Downgrading to info because it's most likely event not supported
         logger.info(f"Not processing Github Webhook {wh.uuid}: {e}")
         return
 
+    parsed = parse_github_webhook(wh)
     channel = discord_channel_router(wh)
 
     DiscordMessage.objects.create(
@@ -62,10 +61,10 @@ def process_github_webhook(wh: Webhook):
         channel_name=channel.channel_name,
         # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
         # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
-        content=f"GitHub: {message}",
+        content=f"GitHub: {parsed.message}",
         # Mark as unsend - to be sent with the next batch
         sent_at=None,
     )
-    wh.event = event_action
+    wh.event = parsed.event_action
     wh.processed_at = timezone.now()
     wh.save()

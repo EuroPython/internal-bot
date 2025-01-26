@@ -3,11 +3,15 @@ Channel router that decides where to send particular message
 """
 
 from dataclasses import dataclass
-from core.models import Webhook
 
-from core.integrations.github import GithubProjects, GithubRepositories
-from core.integrations.github import GithubWebhook
+from core.integrations.github import (
+    GithubProjects,
+    GithubRepositories,
+    parse_github_webhook,
+)
+from core.models import Webhook
 from django.conf import settings
+
 
 @dataclass
 class DiscordChannel:
@@ -15,8 +19,8 @@ class DiscordChannel:
     channel_name: str
 
 
-
 dont_send_it = DiscordChannel(channel_id=0, channel_name="/dev/null")
+
 
 class Channels:
     test_channel = DiscordChannel(
@@ -24,15 +28,29 @@ class Channels:
         channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
     )
 
-    board_channel = DiscordChannel(channel_id=..., channel_name=...)
-    ep2025_channel = DiscordChannel(channel_id=..., channel_name=...)
-    em_channel = DiscordChannel(channel_id=..., channel_name=...)
-    website_channel = DiscordChannel(channel_id=..., channel_name=...)
-    bot_channel = DiscordChannel(channel_id=..., channel_name=...)
+    board_channel = DiscordChannel(
+        channel_id=settings.DISCORD_BOARD_CHANNEL_ID,
+        channel_name=settings.DISCORD_BOARD_CHANNEL_NAME,
+    )
+    ep2025_channel = DiscordChannel(
+        channel_id=settings.DISCORD_EP2025_CHANNEL_ID,
+        channel_name=settings.DISCORD_EP2025_CHANNEL_NAME,
+    )
+    em_channel = DiscordChannel(
+        channel_id=settings.DISCORD_EM_CHANNEL_ID,
+        channel_name=settings.DISCORD_EM_CHANNEL_NAME,
+    )
+    website_channel = DiscordChannel(
+        channel_id=settings.DISCORD_WEBSITE_CHANNEL_ID,
+        channel_name=settings.DISCORD_WEBSITE_CHANNEL_NAME,
+    )
+    bot_channel = DiscordChannel(
+        channel_id=settings.DISCORD_BOT_CHANNEL_ID,
+        channel_name=settings.DISCORD_BOT_CHANNEL_NAME,
+    )
 
 
 def discord_channel_router(wh: Webhook) -> DiscordChannel:
-
     if wh.source == "github":
         return github_router(wh)
 
@@ -43,20 +61,19 @@ def discord_channel_router(wh: Webhook) -> DiscordChannel:
 
 
 def github_router(wh: Webhook) -> DiscordChannel:
-
-    gwh = GithubWebhook.from_webhook(wh)
+    gwh = parse_github_webhook(wh)
     project = gwh.get_project()
     repository = gwh.get_repository()
 
     # We have three github projects, that we want to route to three different
     # channels - one for ep2025, one for EM, and one for the board.
-    if project == GithubProjects.board_project:
+    if project.id == GithubProjects.board_project:
         return Channels.board_channel
 
-    elif project == GithubProjects.ep2025_project:
+    elif project.id == GithubProjects.ep2025_project:
         return Channels.ep2025_channel
 
-    elif project == GithubProjects.em_project:
+    elif project.id == GithubProjects.em_project:
         return Channels.em_channel
 
     else:

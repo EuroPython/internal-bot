@@ -1,0 +1,18 @@
+{
+    "data": {
+        "node": {
+            "id": "PVTI_random_projectItemV2ID",
+            "project": {
+                "id": "PVT_Test_Board_Project",
+                "title": "Board Project",
+                "url": "https://github.com/orgs/EuroPython/projects/1337"
+            },
+            "content": {
+                "__typename": "Issue",
+                "id": "I_randomIssueID",
+                "title": "Testing Epics",
+                "url": "https://github.com/EuroPython/board-2025-tasks/issues/80"
+            }
+        }
+    }
+}

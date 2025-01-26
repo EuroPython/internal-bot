@@ -128,6 +128,8 @@ def get(name) -> str:
             raise ValueError(f"{name} is not set")
 
     elif DJANGO_ENV == "test":
+        # For tests we hardcode below, and if something is missing the tests
+        # will fail.
         pass
     else:
         warnings.warn(f"{name} not set")
@@ -141,13 +143,28 @@ def get(name) -> str:
 # one from the developer portal.
 # If you run it locally, you probably want to run it against your own test
 # bot and a test server.
+DISCORD_BOT_TOKEN = get("DISCORD_BOT_TOKEN")
+
 DISCORD_TEST_CHANNEL_ID = get("DISCORD_TEST_CHANNEL_ID")
 DISCORD_TEST_CHANNEL_NAME = get("DISCORD_TEST_CHANNEL_NAME")
-DISCORD_BOT_TOKEN = get("DISCORD_BOT_TOKEN")
+DISCORD_BOARD_CHANNEL_ID = get("DISCORD_BOARD_CHANNEL_ID")
+DISCORD_BOARD_CHANNEL_NAME = get("DISCORD_BOARD_CHANNEL_NAME")
+DISCORD_EP2025_CHANNEL_ID = get("DISCORD_EP2025_CHANNEL_ID")
+DISCORD_EP2025_CHANNEL_NAME = get("DISCORD_EP2025_CHANNEL_NAME")
+DISCORD_EM_CHANNEL_ID = get("DISCORD_EM_CHANNEL_ID")
+DISCORD_EM_CHANNEL_NAME = get("DISCORD_EM_CHANNEL_NAME")
+DISCORD_WEBSITE_CHANNEL_ID = get("DISCORD_WEBSITE_CHANNEL_ID")
+DISCORD_WEBSITE_CHANNEL_NAME = get("DISCORD_WEBSITE_CHANNEL_NAME")
+DISCORD_BOT_CHANNEL_ID = get("DISCORD_BOT_CHANNEL_ID")
+DISCORD_BOT_CHANNEL_NAME = get("DISCORD_BOT_CHANNEL_NAME")
 
 # Github
 GITHUB_API_TOKEN = get("GITHUB_API_TOKEN")
 GITHUB_WEBHOOK_SECRET_TOKEN = get("GITHUB_WEBHOOK_SECRET_TOKEN")
+
+GITHUB_BOARD_PROJECT_ID = get("GITHUB_BOARD_PROJECT_ID")
+GITHUB_EP2025_PROJECT_ID = get("GITHUB_EP2025_PROJECT_ID")
+GITHUB_EM_PROJECT_ID = get("GITHUB_EM_PROJECT_ID")
 
 if DJANGO_ENV == "dev":
     DEBUG = True
@@ -213,6 +230,18 @@ elif DJANGO_ENV == "test":
     DISCORD_TEST_CHANNEL_NAME = "#test-channel"
     GITHUB_API_TOKEN = "github-test-token"
     GITHUB_WEBHOOK_SECRET_TOKEN = "github-webhook-secret-token-token"
+
+    # IRL those IDs are random and look like "id": "PVT_kwDOAFSD_s4AtxZm"
+    GITHUB_BOARD_PROJECT_ID = "PVT_Test_Board_Project"
+    GITHUB_EP2025_PROJECT_ID = "PVT_Test_ep2025_Project"
+    GITHUB_EM_PROJECT_ID = "PVT_Test_EM_Project"
+
+    DISCORD_BOARD_CHANNEL_NAME = "board_channel"
+    DISCORD_BOARD_CHANNEL_ID = "1234567"
+    DISCORD_EP2025_CHANNEL_NAME = "ep2025_channel"
+    DISCORD_EP2025_CHANNEL_ID = "1232025"
+    DISCORD_EM_CHANNEL_NAME = "em_channel"
+    DISCORD_EM_CHANNEL_ID = "123123"
 
 
 elif DJANGO_ENV == "local_container":
