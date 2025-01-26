@@ -21,6 +21,7 @@ def internal_webhook_endpoint(request):
         wh = Webhook.objects.create(
             source="internal",
             content=json.loads(request.body),
+            extra={},
         )
         process_webhook.enqueue(str(wh.uuid))
 
@@ -58,6 +59,7 @@ def github_webhook_endpoint(request):
             meta=github_headers,
             signature=signature,
             content=json.loads(request.body),
+            extra={},
         )
         process_webhook.enqueue(str(wh.uuid))
         return JsonResponse({"status": "ok"})

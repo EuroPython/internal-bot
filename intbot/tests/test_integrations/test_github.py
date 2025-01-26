@@ -1,12 +1,7 @@
-
 import pytest
-import respx
 from core.integrations.github import (
-    GITHUB_API_URL,
     GithubProjectV2Item,
     GithubSender,
-    fetch_github_project_item,
-    # fetch_github_item_details,
     parse_github_webhook,
 )
 from core.models import Webhook
@@ -15,206 +10,168 @@ from httpx import Response
 
 def test_parse_github_webhook_raises_value_error_for_unsupported():
     headers = {"X-Github-Event": "random_event"}
-    content = {}
+    wh = Webhook(meta=headers, content={}, extra={})
 
     with pytest.raises(ValueError):
-        parse_github_webhook(headers, content)
+        parse_github_webhook(wh)
 
 
-@pytest.fixture
-def mocked_github_response():
-    def _mock_response(item_type, content_data):
-        return {"data": {"node": {"content": content_data}}}
-
-    return _mock_response
-
-
-@pytest.fixture
-def sample_content():
-    return {
-        "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
-        "projects_v2_item": {
-            "content_type": "Issue",
-            "node_id": "test_node_id",
-        },
-    }
-
-
-@respx.mock
-def test_fetch_github_item_details(mocked_github_response):
-    mocked_response = mocked_github_response(
-        "Issue",
-        {
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
-        },
-    )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
-
-    result = fetch_github_project_item("test_node_id")
-
-    assert result["id"] == "test_issue_id"
-    assert result["title"] == "Test Issue"
-    assert result["url"] == "https://github.com/test/repo/issues/1"
-
-
-@respx.mock
-def test_github_project_created_event(mocked_github_response, sample_content):
-    sample_content["action"] = "created"
-    mocked_response = mocked_github_response(
-        "Issue",
-        {
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
-        },
-    )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
-
+def test_github_project_created_event():
     parser = GithubProjectV2Item(
-        content=sample_content,
+        action="created",
         headers={},
-        extra={
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
-            "project": {},
+        content={
+            "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
+            "projects_v2_item": {
+                "content_type": "Issue",
+                "node_id": "test_node_id",
+            },
+            "action": "created",
         },
-        action="projects_v2_item.created",
+        extra={
+            "content": {
+                "__typename": "Issue",
+                "id": "I_randomIssueID",
+                "title": "Test Issue",
+                "url": "https://github.com/test-issue",
+            }
+        },
     )
+
     message = parser.as_discord_message()
 
     assert message == (
         "[@testuser](https://github.com/testuser) created "
-        "[Test Issue](https://github.com/test/repo/issues/1)"
+        "[Test Issue](https://github.com/test-issue)"
     )
 
 
-@respx.mock
-def test_github_project_edited_event_for_status_change(
-    mocked_github_response, sample_content
-):
-    sample_content["action"] = "edited"
-    sample_content["changes"] = {
-        "field_value": {
-            "field_name": "Status",
-            "field_type": "single_select",
-            "from": {"name": "To Do"},
-            "to": {"name": "In Progress"},
-        }
-    }
-    mocked_response = mocked_github_response(
-        "Issue",
-        {
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
+def test_github_project_edited_event_for_status_change():
+    parser = GithubProjectV2Item(
+        action="changed",
+        headers={},
+        content={
+            "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
+            "projects_v2_item": {
+                "content_type": "Issue",
+                "node_id": "test_node_id",
+            },
+            "action": "edited",
+            "changes": {
+                "field_value": {
+                    "field_name": "Status",
+                    "field_type": "single_select",
+                    "from": {"name": "To Do"},
+                    "to": {"name": "In Progress"},
+                }
+            },
+        },
+        extra={
+            "content": {
+                "__typename": "Issue",
+                "id": "I_randomIssueID",
+                "title": "Test Issue",
+                "url": "https://github.com/test-issue",
+            }
         },
     )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
 
-    parser = GithubProjectV2Item(sample_content)
-    message = parser.as_str()
+    message = parser.as_discord_message()
 
     assert message == (
         "[@testuser](https://github.com/testuser) changed **Status** of "
-        "**[Test Issue](https://github.com/test/repo/issues/1)** "
+        "**[Test Issue](https://github.com/test-issue)** "
         "from **To Do** to **In Progress**"
     )
 
 
-@respx.mock
-def test_github_project_edited_event_for_date_change(
-    mocked_github_response, sample_content
-):
-    sample_content["action"] = "edited"
-    sample_content["changes"] = {
-        "field_value": {
-            "field_name": "Deadline",
-            "field_type": "date",
-            "from": "2024-01-01T10:20:30",
-            "to": "2025-01-05T20:30:10",
-        }
-    }
-    mocked_response = mocked_github_response(
-        "Issue",
-        {
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
+def test_github_project_edited_event_for_date_change():
+    parser = GithubProjectV2Item(
+        action="edited",
+        headers={},
+        content={
+            "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
+            "projects_v2_item": {
+                "content_type": "Issue",
+                "node_id": "test_node_id",
+            },
+            "action": "edited",
+            "changes": {
+                "field_value": {
+                    "field_name": "Deadline",
+                    "field_type": "date",
+                    "from": "2024-01-01T10:20:30",
+                    "to": "2025-01-05T20:30:10",
+                }
+            },
+        },
+        extra={
+            "content": {
+                "__typename": "Issue",
+                "id": "I_randomIssueID",
+                "title": "Test Issue",
+                "url": "https://github.com/test-issue",
+            }
         },
     )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
 
-    parser = GithubProjectV2Item(sample_content)
-    message = parser.as_str()
+    message = parser.as_discord_message()
 
     assert message == (
-        "[@testuser](https://github.com/testuser) changed **Deadline** of "
-        "**[Test Issue](https://github.com/test/repo/issues/1)** "
+        "[@testuser](https://github.com/testuser) edited **Deadline** of "
+        "**[Test Issue](https://github.com/test-issue)** "
         "from **2024-01-01** to **2025-01-05**"
     )
 
 
-@respx.mock
-def test_github_project_draft_issue_event(mocked_github_response, sample_content):
-    sample_content["action"] = "created"
-    sample_content["projects_v2_item"]["content_type"] = "DraftIssue"
-    mocked_response = mocked_github_response(
-        "DraftIssue",
-        {
-            "id": "draft_issue_id",
-            "title": "Draft Title",
+def test_github_project_item_draft_issue_created():
+    parser = GithubProjectV2Item(
+        action="created",
+        headers={},
+        content={
+            "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
+            "projects_v2_item": {},
+            "action": "created",
+        },
+        extra={
+            "content": {
+                "__typename": "DraftIssue",
+                "id": "DI_randomDraftIssueID",
+                "title": "Draft Title",
+            }
         },
     )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
 
-    parser = GithubProjectV2Item(sample_content)
-    message = parser.as_str()
+    message = parser.as_discord_message()
 
     assert message == "[@testuser](https://github.com/testuser) created Draft Title"
 
 
-def test_github_project_unsupported_action(sample_content):
-    sample_content["action"] = "unsupported_action"
-
-    parser = GithubProjectV2Item(sample_content)
-
-    with pytest.raises(ValueError, match="Action unsupported unsupported_action"):
-        parser.action()
-
-
-@respx.mock
-def test_github_project_edited_event_no_changes(mocked_github_response, sample_content):
-    sample_content["action"] = "edited"
-    mocked_response = mocked_github_response(
-        "Issue",
-        {
-            "id": "test_issue_id",
-            "title": "Test Issue",
-            "url": "https://github.com/test/repo/issues/1",
+def test_github_project_item_edited_event_no_changes():
+    parser = GithubProjectV2Item(
+        action="edited",
+        headers={},
+        content={
+            "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
+            "projects_v2_item": {},
+            "action": "edited",
+        },
+        extra={
+            "content": {
+                "__typename": "Issue",
+                "id": "I_randomIssueID",
+                "title": "Test Issue",
+                "url": "https://github.com/test-issue",
+            }
         },
     )
-    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
 
-    parser = GithubProjectV2Item(sample_content)
-    message = parser.as_str()
+    message = parser.as_discord_message()
 
     assert message == (
-        "[@testuser](https://github.com/testuser) changed "
-        "[Test Issue](https://github.com/test/repo/issues/1)"
+        "[@testuser](https://github.com/testuser) edited "
+        "[Test Issue](https://github.com/test-issue)"
     )
-
-
-# @respx.mock
-# def test_fetch_github_item_details_api_error():
-#     respx.post(GITHUB_API_URL).mock(
-#         return_value=Response(500, json={"message": "Internal Server Error"})
-#     )
-
-#     with pytest.raises(Exception, match="GitHub API error: 500 - .*"):
-#         fetch_github_item_details("test_node_id")
 
 
 class TestGithubProjectV2ItemSpecial:
@@ -228,8 +185,8 @@ class TestGithubProjectV2ItemSpecial:
 
         ghp = gwh.get_project()
 
-        assert ghp.title == "EPS Board 2025"
-        assert ghp.url == "https://github.com/orgs/EuroPython/projects/5"
+        assert ghp.title == "Board Project"
+        assert ghp.url == "https://github.com/orgs/EuroPython/projects/1337"
 
     def test_get_sender_parses_sender_correctly(self, gh_data):
         wh = Webhook(

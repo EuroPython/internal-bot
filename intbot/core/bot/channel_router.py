@@ -15,11 +15,11 @@ from django.conf import settings
 
 @dataclass
 class DiscordChannel:
-    channel_id: int
+    channel_id: str
     channel_name: str
 
 
-dont_send_it = DiscordChannel(channel_id=0, channel_name="/dev/null")
+dont_send_it = DiscordChannel(channel_id="0", channel_name="/dev/null")
 
 
 class Channels:

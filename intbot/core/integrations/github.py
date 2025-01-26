@@ -78,7 +78,6 @@ class GithubIssue(BaseModel):
         return f"[{self.title}]({self.url})"
 
 
-@dataclasses.dataclass
 class GithubDraftIssue(BaseModel):
     id: str
     title: str
@@ -121,9 +120,6 @@ class GithubWebhook:
 
 class GithubProjectV2Item(GithubWebhook):
     # NOTE: This might be something for pydantic schemas in the future
-
-    def action(self):
-        return self.content["action"]
 
     def sender(self):
         sender = self.get_sender()
@@ -200,7 +196,7 @@ class GithubProjectV2Item(GithubWebhook):
         return message(
             **{
                 "sender": sender,
-                "action": self.action(),
+                "action": self.action,
                 "details": details,
             }
         )
@@ -220,7 +216,7 @@ def prep_github_webhook(wh: Webhook):
         wh.save()
         return wh
 
-    raise ValueError(f"Event {event} not supported")
+    raise ValueError(f"Event `{event}` not supported")
 
 
 # Should we have a separate GithubClient that encapsulates this?

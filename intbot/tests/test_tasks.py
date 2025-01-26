@@ -14,6 +14,7 @@ def test_process_internal_webhook_handles_internal_webhook_correctly():
         content={
             "random": "content",
         },
+        extra={},
     )
 
     process_internal_webhook(wh)
@@ -34,7 +35,12 @@ def test_process_internal_webhook_fails_if_incorrect_source():
 
 @pytest.mark.django_db
 def test_process_webhook_fails_if_unsupported_source():
-    wh = Webhook.objects.create(source="asdf", event="test1", content={})
+    wh = Webhook.objects.create(
+        source="asdf",
+        event="test1",
+        content={},
+        extra={},
+    )
 
     # If the task is enqueued the errors are not emited.
     # Instead we have to check the result
@@ -51,6 +57,7 @@ def test_process_github_webhook_logs_unsupported_event(caplog):
         event="",
         meta={"X-Github-Event": "testrandom"},
         content={},
+        extra={},
     )
 
     with caplog.at_level(logging.INFO):
