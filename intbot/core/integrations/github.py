@@ -109,11 +109,11 @@ class GithubWebhook:
             action=wh.event,
         )
 
-    def get_project(self):
+    def get_project(self):  # pragma: no cover
         """Used in the discord channel router"""
         raise NotImplementedError("Implement in child class")
 
-    def get_repository(self):
+    def get_repository(self):  # pragma: no cover
         """Used in the discord channel router"""
         raise NotImplementedError("Implement in child class")
 
@@ -147,9 +147,6 @@ class GithubProjectV2Item(GithubWebhook):
 
     def get_sender(self) -> GithubSender:
         return GithubSender.parse_obj(self.content["sender"])
-
-    def project_name(self):
-        return self.get_project().title
 
     def changes(self) -> dict:
         if "changes" in self.content:
@@ -211,7 +208,7 @@ def prep_github_webhook(wh: Webhook):
     if event == "projects_v2_item":
         node_id = wh.content["projects_v2_item"]["node_id"]
         project_item = fetch_github_project_item(node_id)
-        wh.event = f"{event}.{wh.content['action']}"
+        wh.event = f"{event}.{wh.content['projects_v2_item']['action']}"
         wh.extra = project_item
         wh.save()
         return wh

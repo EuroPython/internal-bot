@@ -1,8 +1,11 @@
 import pytest
+import respx
 from core.integrations.github import (
+    GITHUB_API_URL,
     GithubProjectV2Item,
     GithubSender,
     parse_github_webhook,
+    prep_github_webhook,
 )
 from core.models import Webhook
 from httpx import Response
@@ -174,7 +177,78 @@ def test_github_project_item_edited_event_no_changes():
     )
 
 
-class TestGithubProjectV2ItemSpecial:
+class TestGithubProjectV2Item:
+
+    def test_changes_for_single_select(self):
+        parser = GithubProjectV2Item(
+            action="changed",
+            headers={},
+            content={
+                "changes": {
+                    "field_value": {
+                        "field_name": "Status",
+                        "field_type": "single_select",
+                        "from": {"name": "To Do"},
+                        "to": {"name": "In Progress"},
+                    }
+                },
+            },
+            extra={},
+        )
+
+        assert parser.changes() == {
+            "from": "To Do",
+            "to": "In Progress",
+            "field": "Status",
+        }
+
+    def test_changes_for_date(self):
+        parser = GithubProjectV2Item(
+            action="changed",
+            headers={},
+            content={
+                "changes": {
+                    "field_value": {
+                        "field_name": "Deadline",
+                        "field_type": "date",
+                        "from": "2024-01-01T10:20:30",
+                        "to": "2025-01-05T20:30:10",
+                    }
+                },
+            },
+            extra={},
+        )
+
+        assert parser.changes() == {
+            "from": "2024-01-01",
+            "to": "2025-01-05",
+            "field": "Deadline",
+        }
+
+    def test_changes_for_unsupported_format(self):
+        parser = GithubProjectV2Item(
+            action="changed",
+            headers={},
+            content={
+                "changes": {
+                    "field_value": {
+                        "field_name": "Randomfield",
+                        "field_type": "unsupported",
+                        "from": "This",
+                        "to": "That",
+                    }
+                },
+            },
+            extra={},
+        )
+
+        assert parser.changes() == {
+            "from": "None",
+            "to": "None",
+            "field": "Randomfield",
+        }
+
+
     def test_get_project_parses_project_correctly(self, gh_data):
         wh = Webhook(
             meta={"X-Github-Event": "projects_v2_item"},
@@ -218,3 +292,78 @@ class TestGithubProjectV2ItemSpecial:
             "https://github.com/apps/github-project-automation"
             ")"
         )
+
+
+def test_prep_github_webhook_fails_if_event_not_supported():
+    wh = Webhook(meta={"X-Github-Event": "issue.fixed"})
+
+    with pytest.raises(ValueError):
+        prep_github_webhook(wh)
+
+
+@respx.mock
+@pytest.mark.django_db
+def test_prep_github_webhook_fetches_extra_data_for_project_v2_item():
+    wh = Webhook(
+        meta={"X-Github-Event": "projects_v2_item"},
+        content={
+            "projects_v2_item": {
+                "node_id": "PVTI_random_projectItemV2ID",
+                "action": "random",
+            }
+        },
+    )
+    node = {
+        "project": {
+            "id": "PVT_Random_Project",
+            "title": "Random Project",
+            "url": "https://github.com/europython",
+        },
+        "content": {
+            "__typename": "Issue",
+            "id": "I_randomIssueID",
+            "title": "Test Issue",
+            "url": "https://github.com/test-issue",
+        },
+    }
+
+    mocked_response = {
+        "data": {
+            "node": node,
+        }
+    }
+
+    respx.post(GITHUB_API_URL).mock(return_value=Response(200, json=mocked_response))
+    wh = prep_github_webhook(wh)
+
+    assert wh.event == "projects_v2_item.random"
+    assert wh.extra == node
+
+
+@respx.mock
+def test_prep_github_webhook_reraises_exception_in_case_of_API_error():
+    wh = Webhook(
+        meta={"X-Github-Event": "projects_v2_item"},
+        content={
+            "projects_v2_item": {
+                "node_id": "PVTI_random_projectItemV2ID",
+                "action": "random",
+            }
+        },
+    )
+
+    respx.post(GITHUB_API_URL).mock(return_value=Response(500, json={"lol": "failed"}))
+
+    with pytest.raises(Exception, match='GitHub API error: 500 - {"lol":"failed"}'):
+        wh = prep_github_webhook(wh)
+
+
+def test_parse_github_webhook_raises_exception_for_unsupported_events():
+    wh = Webhook(
+        meta={"X-Github-Event": "long_form_content"},
+        content={},
+        extra={"something": "extra"},
+    )
+
+    with pytest.raises(ValueError, match="Event not supported `long_form_content`"):
+        parse_github_webhook(wh)

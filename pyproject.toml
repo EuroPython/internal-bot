@@ -48,4 +48,5 @@ exclude_lines = [
     "if 0:",
     "def __repr__",
     "def __str__",
+    "pragma: no cover",
 ]
