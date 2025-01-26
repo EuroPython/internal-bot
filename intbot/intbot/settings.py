@@ -118,7 +118,7 @@ TASKS: dict[str, Any]
 
 
 # There are bunch of settings that we can skip on dev/testing environments if
-# are not used, but should be present on prod/staging deployments.
+# not used - that should be always present on prod/staging deployments.
 # Instead of repeating them per-env below, they go here.
 def get(name) -> str:
     value = os.environ.get(name)
