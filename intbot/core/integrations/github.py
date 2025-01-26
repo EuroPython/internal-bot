@@ -129,23 +129,25 @@ class GithubProjectV2Item(GithubWebhook):
         content = self.extra["content"]
         typename = content.pop("__typename")
 
-        CONTENT_TYPE_MAP = {
+        # The typing here is only to make mypy happy. If you have a better idea
+        # how to do it, please fix :)
+        CONTENT_TYPE_MAP: dict[str, type[GithubIssue] | type[GithubDraftIssue]] = {
             "Issue": GithubIssue,
             "DraftIssue": GithubDraftIssue,
         }
 
-        obj = CONTENT_TYPE_MAP[typename].parse_obj(content)
+        obj = CONTENT_TYPE_MAP[typename].model_validate(content)
         return obj
 
     def get_project(self) -> GithubProject:
-        return GithubProject.parse_obj(self.extra["project"])
+        return GithubProject.model_validate(self.extra["project"])
 
     def get_repository(self):
         # Not relevnat at the moment
         return ...
 
     def get_sender(self) -> GithubSender:
-        return GithubSender.parse_obj(self.content["sender"])
+        return GithubSender.model_validate(self.content["sender"])
 
     def changes(self) -> dict:
         if "changes" in self.content:
