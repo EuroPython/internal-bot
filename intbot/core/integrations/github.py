@@ -129,15 +129,12 @@ class GithubProjectV2Item(GithubWebhook):
         content = self.extra["content"]
         typename = content.pop("__typename")
 
-        # The typing here is only to make mypy happy. If you have a better idea
-        # how to do it, please fix :)
-        CONTENT_TYPE_MAP: dict[str, type[GithubIssue] | type[GithubDraftIssue]] = {
-            "Issue": GithubIssue,
-            "DraftIssue": GithubDraftIssue,
-        }
-
-        obj = CONTENT_TYPE_MAP[typename].model_validate(content)
-        return obj
+        if typename == "Issue":
+            return GithubIssue.model_validate(content)
+        elif typename == "DraftIssue":
+            return GithubDraftIssue.model_validate(content)
+        else:
+            raise ValueError("Other types are not supported")
 
     def get_project(self) -> GithubProject:
         return GithubProject.model_validate(self.extra["project"])
