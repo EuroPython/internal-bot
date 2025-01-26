@@ -1,4 +1,3 @@
-import json
 
 import pytest
 import respx
@@ -11,7 +10,6 @@ from core.integrations.github import (
     parse_github_webhook,
 )
 from core.models import Webhook
-from django.conf import settings
 from httpx import Response
 
 
