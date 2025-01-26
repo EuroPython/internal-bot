@@ -8,7 +8,6 @@ This is split into three parts.
 3. Proces webhook - usually means create a discord message with a notification
 """
 
-import dataclasses
 from typing import Any
 
 import httpx
