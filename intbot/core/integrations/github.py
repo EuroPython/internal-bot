@@ -120,10 +120,14 @@ class GithubWebhook:
 class GithubProjectV2Item(GithubWebhook):
     # NOTE: This might be something for pydantic schemas in the future
 
+    @property
     def sender(self):
         sender = self.get_sender()
 
         return f"[@{sender.login}]({sender.html_url})"
+
+    def get_sender(self) -> GithubSender:
+        return GithubSender.model_validate(self.content["sender"])
 
     def github_object(self) -> GithubDraftIssue | GithubIssue:
         content = self.extra["content"]
@@ -143,41 +147,40 @@ class GithubProjectV2Item(GithubWebhook):
         # Not relevant at the moment
         return ...
 
-    def get_sender(self) -> GithubSender:
-        return GithubSender.model_validate(self.content["sender"])
-
     def changes(self) -> dict:
-        if "changes" in self.content:
-            fv = self.content["changes"]["field_value"]
-            field_name = fv["field_name"]
-            field_type = fv["field_type"]
 
-            if field_type == "date":
-                changed_from = (
-                    fv["from"].split("T")[0] if fv["from"] is not None else "None"
-                )
-                changed_to = fv["to"].split("T")[0] if fv["to"] is not None else "None"
+        # Early return! \o/
+        if "changes" not in self.content:
+            # Fallback because some webhooks just don't have changes.
+            return {}
 
-            elif field_type == "single_select":
-                changed_from = fv["from"]["name"] if fv["from"] is not None else "None"
-                changed_to = fv["to"]["name"] if fv["to"] is not None else "None"
+        fv = self.content["changes"]["field_value"]
+        field_name = fv["field_name"]
+        field_type = fv["field_type"]
 
-            else:
-                changed_from = "None"
-                changed_to = "None"
+        if field_type == "date":
+            changed_from = (
+                fv["from"].split("T")[0] if fv["from"] is not None else "None"
+            )
+            changed_to = fv["to"].split("T")[0] if fv["to"] is not None else "None"
 
-            return {
-                "field": field_name,
-                "from": changed_from,
-                "to": changed_to,
-            }
+        elif field_type == "single_select":
+            changed_from = fv["from"]["name"] if fv["from"] is not None else "None"
+            changed_to = fv["to"]["name"] if fv["to"] is not None else "None"
 
-        return {}
+        else:
+            changed_from = "None"
+            changed_to = "None"
+
+        return {
+            "field": field_name,
+            "from": changed_from,
+            "to": changed_to,
+        }
 
     def as_discord_message(self) -> str:
         message = "{sender} {action} {details}".format
 
-        sender = self.sender()
         changes = self.changes()
 
         if changes:
@@ -190,7 +193,7 @@ class GithubProjectV2Item(GithubWebhook):
 
         return message(
             **{
-                "sender": sender,
+                "sender": self.sender,
                 "action": self.action,
                 "details": details,
             }
@@ -214,6 +217,11 @@ def prep_github_webhook(wh: Webhook):
     raise ValueError(f"Event `{event}` not supported")
 
 
+class GithubAPIError(Exception):
+    """Custom exception for GithubAPI Errors"""
+    pass
+
+
 # Should we have a separate GithubClient that encapsulates this?
 # Or at least a function that runs the request.
 def fetch_github_project_item(item_id: str) -> dict[str, Any]:
@@ -227,7 +235,7 @@ def fetch_github_project_item(item_id: str) -> dict[str, Any]:
     if response.status_code == 200:
         return response.json()["data"]["node"]
     else:
-        raise Exception(f"GitHub API error: {response.status_code} - {response.text}")
+        raise GithubAPIError(f"GitHub API error: {response.status_code} - {response.text}")
 
 
 def parse_github_webhook(wh: Webhook):

@@ -76,9 +76,6 @@ def github_router(wh: Webhook) -> DiscordChannel:
     elif project.id == GithubProjects.em_project:
         return Channels.em_channel
 
-    else:
-        ...
-
     # Then we have our open source repositories, like website, this bot, and
     # some others, that we also might want to route to different channels
     if repository == GithubRepositories.website_repo:

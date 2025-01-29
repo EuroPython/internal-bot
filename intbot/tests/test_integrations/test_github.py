@@ -3,6 +3,7 @@ import respx
 from core.integrations.github import (
     GITHUB_API_URL,
     GithubProjectV2Item,
+    GithubAPIError,
     GithubSender,
     parse_github_webhook,
     prep_github_webhook,
@@ -284,11 +285,10 @@ class TestGithubProjectV2Item:
         )
         gwh = parse_github_webhook(wh)
 
-        sender = gwh.sender()
 
-        assert isinstance(sender, str)
+        assert isinstance(gwh.sender, str)
         assert (
-            sender == "[@github-project-automation[bot]]("
+            gwh.sender == "[@github-project-automation[bot]]("
             "https://github.com/apps/github-project-automation"
             ")"
         )
@@ -354,7 +354,7 @@ def test_prep_github_webhook_reraises_exception_in_case_of_API_error():
 
     respx.post(GITHUB_API_URL).mock(return_value=Response(500, json={"lol": "failed"}))
 
-    with pytest.raises(Exception, match='GitHub API error: 500 - {"lol":"failed"}'):
+    with pytest.raises(GithubAPIError, match='GitHub API error: 500 - {"lol":"failed"}'):
         wh = prep_github_webhook(wh)
 
 
