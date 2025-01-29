@@ -140,7 +140,7 @@ class GithubProjectV2Item(GithubWebhook):
         return GithubProject.model_validate(self.extra["project"])
 
     def get_repository(self):
-        # Not relevnat at the moment
+        # Not relevant at the moment
         return ...
 
     def get_sender(self) -> GithubSender:
