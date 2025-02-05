@@ -1,12 +1,13 @@
 import logging
 
-from core.integrations.github import parse_github_webhook
+from core.integrations.github import parse_github_webhook, prep_github_webhook
+from core.bot.channel_router import discord_channel_router, dont_send_it
 from core.models import DiscordMessage, Webhook
-from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
 
 logger = logging.getLogger()
+
 
 
 @task
@@ -27,9 +28,13 @@ def process_internal_webhook(wh: Webhook):
     if wh.source != "internal":
         raise ValueError("Incorrect wh.source = {wh.source}")
 
+    channel = discord_channel_router(wh)
+
     DiscordMessage.objects.create(
-        channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
+        channel_id=channel.channel_id,
+        channel_name=channel.channel_name,
+        # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
+        # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"Webhook content: {wh.content}",
         # Mark as not sent - to be sent with the next batch
         sent_at=None,
@@ -43,22 +48,27 @@ def process_github_webhook(wh: Webhook):
         raise ValueError("Incorrect wh.source = {wh.source}")
 
     try:
-        message, event_action = parse_github_webhook(
-            headers=wh.meta, content=wh.content
-        )
+        wh = prep_github_webhook(wh)
     except ValueError as e:
         # Downgrading to info because it's most likely event not supported
         logger.info(f"Not processing Github Webhook {wh.uuid}: {e}")
         return
 
-    # NOTE WHERE SHOULD WE GET THE CHANNEL ID FROM?
+    parsed = parse_github_webhook(wh)
+    channel = discord_channel_router(wh)
+
+    if channel == dont_send_it:
+        wh.processed_at = timezone.now()
+        wh.save()
+        return
+
     DiscordMessage.objects.create(
-        channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
-        content=f"GitHub: {message}",
+        channel_id=channel.channel_id,
+        channel_name=channel.channel_name,
+        content=f"GitHub: {parsed.message}",
         # Mark as unsend - to be sent with the next batch
         sent_at=None,
     )
-    wh.event = event_action
+    wh.event = parsed.event_action
     wh.processed_at = timezone.now()
     wh.save()

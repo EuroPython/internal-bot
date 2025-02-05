@@ -7,7 +7,7 @@ from core.models import DiscordMessage, Webhook
 
 def test_admin_for_webhooks_sanity_check(admin_client):
     url = "/admin/core/webhook/"
-    wh = Webhook.objects.create(content={})
+    wh = Webhook.objects.create(content={}, extra={})
     assert wh.uuid
 
     response = admin_client.get(url)

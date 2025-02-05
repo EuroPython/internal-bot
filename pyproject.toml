@@ -23,6 +23,7 @@ dependencies = [
     "pytest-cov>=6.0.0",
     "pytest-socket>=0.7.0",
     "respx>=0.22.0",
+    "pydantic>=2.10.6",
 ]
 
 [tool.pytest.ini_options]
@@ -47,4 +48,5 @@ exclude_lines = [
     "if 0:",
     "def __repr__",
     "def __str__",
+    "pragma: no cover",
 ]
