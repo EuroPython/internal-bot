@@ -24,16 +24,15 @@
         src: ../templates/app/docker-compose.app.yml.j2
         dest: ./docker-compose.yml
 
+    - name: Copy env file example
+      ansible.builtin.copy:
+        src: ../templates/app/intbot.env.example
+        dest: intbot.env.example
+
     - name: Check if the env file exists
       ansible.builtin.stat:
         path: intbot.env
       register: env_file
-
-    - name: If env file doesn't exist - copy the example
-      ansible.builtin.copy:
-        src: ../templates/app/intbot.env.example
-        dest: intbot.env.example
-      when: not env_file.stat.exists
 
     - name: If the env file doesn't exist - fail with error message
       ansible.builtin.fail:

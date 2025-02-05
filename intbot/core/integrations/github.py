@@ -89,14 +89,18 @@ class GithubDraftIssue(BaseModel):
     def as_discord_message(self):
         return self.title
 
+
 JsonType = dict[str, Any]
+
 
 class GithubWebhook:
     """
     Base class for all the other specific types of webhooks.
     """
 
-    def __init__(self, action: str, headers: JsonType, content: JsonType, extra: JsonType):
+    def __init__(
+        self, action: str, headers: JsonType, content: JsonType, extra: JsonType
+    ):
         self.action = action
         self.headers = headers
         self.content = content
@@ -154,7 +158,6 @@ class GithubProjectV2Item(GithubWebhook):
         return GithubRepository(name="Placeholder", id="placeholder-repo")
 
     def changes(self) -> dict:
-
         # Early return! \o/
         if "changes" not in self.content:
             # Fallback because some webhooks just don't have changes.
@@ -218,7 +221,7 @@ def prep_github_webhook(wh: Webhook):
     if event == "projects_v2_item":
         node_id = wh.content["projects_v2_item"]["node_id"]
         project_item = fetch_github_project_item(node_id)
-        wh.event = f"{event}.{wh.content['projects_v2_item']['action']}"
+        wh.event = f"{event}.{wh.content['action']}"
         wh.extra = project_item
         wh.save()
         return wh
@@ -228,6 +231,7 @@ def prep_github_webhook(wh: Webhook):
 
 class GithubAPIError(Exception):
     """Custom exception for GithubAPI Errors"""
+
     pass
 
 
@@ -244,7 +248,9 @@ def fetch_github_project_item(item_id: str) -> dict[str, Any]:
     if response.status_code == 200:
         return response.json()["data"]["node"]
     else:
-        raise GithubAPIError(f"GitHub API error: {response.status_code} - {response.text}")
+        raise GithubAPIError(
+            f"GitHub API error: {response.status_code} - {response.text}"
+        )
 
 
 def parse_github_webhook(wh: Webhook):

@@ -136,6 +136,7 @@ def get(name) -> str:
 
     return value or ""
 
+
 # Discord
 # This is only needed if you end up running the bot locally, hence it
 # doesn't fail explicilty – however it does emit a warning.
@@ -190,7 +191,6 @@ if DJANGO_ENV == "dev":
     }
 
     WEBHOOK_INTERNAL_TOKEN = "dev-token"
-
 
 
 elif DJANGO_ENV == "test":
@@ -341,7 +341,6 @@ elif DJANGO_ENV == "prod":
     CSRF_TRUSTED_ORIGINS = [
         "https://internal.europython.eu",
     ]
-
 
 
 elif DJANGO_ENV == "build":
