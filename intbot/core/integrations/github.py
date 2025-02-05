@@ -130,6 +130,14 @@ class GithubWebhook:
 class GithubProjectV2Item(GithubWebhook):
     # NOTE: This might be something for pydantic schemas in the future
 
+    def short_action(self):
+        # "projects_v2_item.edited" -> changed
+        # "projects_v2_item.created" -> created
+        action = self.action.split(".")[1]
+        return {
+            "edited": "changed",
+        }.get(action, action)
+
     @property
     def sender(self):
         sender = self.get_sender()
@@ -206,7 +214,7 @@ class GithubProjectV2Item(GithubWebhook):
         return message(
             **{
                 "sender": self.sender,
-                "action": self.action,
+                "action": self.short_action(),
                 "details": details,
             }
         )
