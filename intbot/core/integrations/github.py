@@ -63,6 +63,11 @@ class GithubProject(BaseModel):
     url: str
 
 
+class GithubRepository(BaseModel):
+    id: str
+    name: str
+
+
 class GithubSender(BaseModel):
     login: str
     html_url: str
@@ -84,13 +89,14 @@ class GithubDraftIssue(BaseModel):
     def as_discord_message(self):
         return self.title
 
+JsonType = dict[str, Any]
 
 class GithubWebhook:
     """
     Base class for all the other specific types of webhooks.
     """
 
-    def __init__(self, action: str, headers: dict, content: dict, extra: dict):
+    def __init__(self, action: str, headers: JsonType, content: JsonType, extra: JsonType):
         self.action = action
         self.headers = headers
         self.content = content
@@ -143,9 +149,9 @@ class GithubProjectV2Item(GithubWebhook):
     def get_project(self) -> GithubProject:
         return GithubProject.model_validate(self.extra["project"])
 
-    def get_repository(self):
+    def get_repository(self) -> GithubRepository:
         # Not relevant at the moment
-        return ...
+        return GithubRepository(name="Placeholder", id="placeholder-repo")
 
     def changes(self) -> dict:
 
@@ -157,6 +163,9 @@ class GithubProjectV2Item(GithubWebhook):
         fv = self.content["changes"]["field_value"]
         field_name = fv["field_name"]
         field_type = fv["field_type"]
+
+        changed_from: str
+        changed_to: str
 
         if field_type == "date":
             changed_from = (

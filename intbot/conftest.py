@@ -5,7 +5,8 @@ from django.conf import settings
 
 
 @pytest.fixture(scope="session")
-def gh_data():
+def github_data():
+    """Pytest fixture with examples of webhooks from github"""
     base_path = settings.BASE_DIR / "tests" / "test_integrations" / "github"
 
     return {

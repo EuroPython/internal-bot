@@ -1,12 +1,13 @@
 import logging
 
 from core.integrations.github import parse_github_webhook, prep_github_webhook
-from core.bot.channel_router import discord_channel_router
+from core.bot.channel_router import discord_channel_router, dont_send_it
 from core.models import DiscordMessage, Webhook
 from django.utils import timezone
 from django_tasks import task
 
 logger = logging.getLogger()
+
 
 
 @task
@@ -56,11 +57,14 @@ def process_github_webhook(wh: Webhook):
     parsed = parse_github_webhook(wh)
     channel = discord_channel_router(wh)
 
+    if channel == dont_send_it:
+        wh.processed_at = timezone.now()
+        wh.save()
+        return
+
     DiscordMessage.objects.create(
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
-        # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"GitHub: {parsed.message}",
         # Mark as unsend - to be sent with the next batch
         sent_at=None,

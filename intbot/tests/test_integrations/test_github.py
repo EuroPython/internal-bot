@@ -250,11 +250,11 @@ class TestGithubProjectV2Item:
         }
 
 
-    def test_get_project_parses_project_correctly(self, gh_data):
+    def test_get_project_parses_project_correctly(self, github_data):
         wh = Webhook(
             meta={"X-Github-Event": "projects_v2_item"},
-            content=gh_data["project_v2_item.edited"],
-            extra=gh_data["query_result"],
+            content=github_data["project_v2_item.edited"],
+            extra=github_data["query_result"],
         )
         gwh = parse_github_webhook(wh)
 
@@ -263,11 +263,11 @@ class TestGithubProjectV2Item:
         assert ghp.title == "Board Project"
         assert ghp.url == "https://github.com/orgs/EuroPython/projects/1337"
 
-    def test_get_sender_parses_sender_correctly(self, gh_data):
+    def test_get_sender_parses_sender_correctly(self, github_data):
         wh = Webhook(
             meta={"X-Github-Event": "projects_v2_item"},
-            content=gh_data["project_v2_item.edited"],
-            extra=gh_data["query_result"],
+            content=github_data["project_v2_item.edited"],
+            extra=github_data["query_result"],
         )
         gwh = parse_github_webhook(wh)
 
@@ -277,11 +277,11 @@ class TestGithubProjectV2Item:
         assert sender.login == "github-project-automation[bot]"
         assert sender.html_url == "https://github.com/apps/github-project-automation"
 
-    def test_sender_formats_sender_correctly(self, gh_data):
+    def test_sender_formats_sender_correctly(self, github_data):
         wh = Webhook(
             meta={"X-Github-Event": "projects_v2_item"},
-            content=gh_data["project_v2_item.edited"],
-            extra=gh_data["query_result"],
+            content=github_data["project_v2_item.edited"],
+            extra=github_data["query_result"],
         )
         gwh = parse_github_webhook(wh)
 

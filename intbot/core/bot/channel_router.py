@@ -19,7 +19,7 @@ class DiscordChannel:
     channel_name: str
 
 
-dont_send_it = DiscordChannel(channel_id="0", channel_name="/dev/null")
+dont_send_it = DiscordChannel(channel_id="0", channel_name="DONT_SEND_IT")
 
 
 class Channels:
@@ -67,28 +67,27 @@ def github_router(wh: Webhook) -> DiscordChannel:
 
     # We have three github projects, that we want to route to three different
     # channels - one for ep2025, one for EM, and one for the board.
-    if project.id == GithubProjects.board_project:
-        return Channels.board_channel
+    PROJECTS = {
+        GithubProjects.board_project: Channels.board_channel,
+        GithubProjects.ep2025_project: Channels.ep2025_channel,
+        GithubProjects.em_project: Channels.em_channel,
+    }
 
-    elif project.id == GithubProjects.ep2025_project:
-        return Channels.ep2025_channel
-
-    elif project.id == GithubProjects.em_project:
-        return Channels.em_channel
+    if channel := PROJECTS.get(project.id):
+        return channel
 
     # Then we have our open source repositories, like website, this bot, and
     # some others, that we also might want to route to different channels
-    if repository == GithubRepositories.website_repo:
-        return Channels.website_channel
+    REPOSITORIES = {
+        GithubRepositories.website_repo: Channels.website_channel,
+        GithubRepositories.bot_repo: Channels.bot_channel,
+    }
 
-    elif repository == GithubRepositories.bot_repo:
-        return Channels.bot_channel
-
-    elif repository == ...:
-        ...
+    if channel := REPOSITORIES.get(repository.id):
+        return channel
 
     # Finally, we can use this to drop notifications that we don't want to
-    # support, by routing them to /dev/null
+    # support, by not sending them.
     return dont_send_it
 
 
