@@ -16,6 +16,7 @@ from django.utils import timezone
 # it seems to fix the issue and also speed up the test from ~6s down to 1s.
 # Thanks to (@gbdlin) for help with debugging.
 
+
 @pytest.fixture(autouse=True)
 def fix_async_db(request):
     """

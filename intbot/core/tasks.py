@@ -9,7 +9,6 @@ from django_tasks import task
 logger = logging.getLogger()
 
 
-
 @task
 def process_webhook(wh_uuid: str):
     wh = Webhook.objects.get(uuid=wh_uuid)
@@ -65,10 +64,9 @@ def process_github_webhook(wh: Webhook):
     DiscordMessage.objects.create(
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
-        content=f"GitHub: {parsed.message}",
+        content=f"GitHub: {parsed.as_discord_message()}",
         # Mark as unsend - to be sent with the next batch
         sent_at=None,
     )
-    wh.event = parsed.event_action
     wh.processed_at = timezone.now()
     wh.save()

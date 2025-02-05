@@ -179,7 +179,6 @@ def test_github_project_item_edited_event_no_changes():
 
 
 class TestGithubProjectV2Item:
-
     def test_changes_for_single_select(self):
         parser = GithubProjectV2Item(
             action="changed",
@@ -249,7 +248,6 @@ class TestGithubProjectV2Item:
             "field": "Randomfield",
         }
 
-
     def test_get_project_parses_project_correctly(self, github_data):
         wh = Webhook(
             meta={"X-Github-Event": "projects_v2_item"},
@@ -285,7 +283,6 @@ class TestGithubProjectV2Item:
         )
         gwh = parse_github_webhook(wh)
 
-
         assert isinstance(gwh.sender, str)
         assert (
             gwh.sender == "[@github-project-automation[bot]]("
@@ -307,10 +304,10 @@ def test_prep_github_webhook_fetches_extra_data_for_project_v2_item():
     wh = Webhook(
         meta={"X-Github-Event": "projects_v2_item"},
         content={
+            "action": "random",
             "projects_v2_item": {
                 "node_id": "PVTI_random_projectItemV2ID",
-                "action": "random",
-            }
+            },
         },
     )
     node = {
@@ -354,7 +351,9 @@ def test_prep_github_webhook_reraises_exception_in_case_of_API_error():
 
     respx.post(GITHUB_API_URL).mock(return_value=Response(500, json={"lol": "failed"}))
 
-    with pytest.raises(GithubAPIError, match='GitHub API error: 500 - {"lol":"failed"}'):
+    with pytest.raises(
+        GithubAPIError, match='GitHub API error: 500 - {"lol":"failed"}'
+    ):
         wh = prep_github_webhook(wh)
 
 
