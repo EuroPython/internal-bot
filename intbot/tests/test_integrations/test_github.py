@@ -22,7 +22,7 @@ def test_parse_github_webhook_raises_value_error_for_unsupported():
 
 def test_github_project_created_event():
     parser = GithubProjectV2Item(
-        action="created",
+        action="projects_v2_item.created",
         headers={},
         content={
             "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
@@ -52,7 +52,7 @@ def test_github_project_created_event():
 
 def test_github_project_edited_event_for_status_change():
     parser = GithubProjectV2Item(
-        action="changed",
+        action="projects_v2_item.edited",
         headers={},
         content={
             "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
@@ -91,7 +91,7 @@ def test_github_project_edited_event_for_status_change():
 
 def test_github_project_edited_event_for_date_change():
     parser = GithubProjectV2Item(
-        action="edited",
+        action="projects_v2_item.edited",
         headers={},
         content={
             "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
@@ -122,7 +122,7 @@ def test_github_project_edited_event_for_date_change():
     message = parser.as_discord_message()
 
     assert message == (
-        "[@testuser](https://github.com/testuser) edited **Deadline** of "
+        "[@testuser](https://github.com/testuser) changed **Deadline** of "
         "**[Test Issue](https://github.com/test-issue)** "
         "from **2024-01-01** to **2025-01-05**"
     )
@@ -130,7 +130,7 @@ def test_github_project_edited_event_for_date_change():
 
 def test_github_project_item_draft_issue_created():
     parser = GithubProjectV2Item(
-        action="created",
+        action="projects_v2_item.created",
         headers={},
         content={
             "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
@@ -153,7 +153,7 @@ def test_github_project_item_draft_issue_created():
 
 def test_github_project_item_edited_event_no_changes():
     parser = GithubProjectV2Item(
-        action="edited",
+        action="projects_v2_item.edited",
         headers={},
         content={
             "sender": {"login": "testuser", "html_url": "https://github.com/testuser"},
@@ -173,7 +173,7 @@ def test_github_project_item_edited_event_no_changes():
     message = parser.as_discord_message()
 
     assert message == (
-        "[@testuser](https://github.com/testuser) edited "
+        "[@testuser](https://github.com/testuser) changed "
         "[Test Issue](https://github.com/test-issue)"
     )
 

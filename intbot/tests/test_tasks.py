@@ -162,7 +162,7 @@ def test_process_github_webhook_creates_a_message_from_supported(
     assert dm.content == (
         "GitHub: [@github-project-automation[bot]]"
         "(https://github.com/apps/github-project-automation)"
-        " projects_v2_item.edited **Status** of "
+        " changed **Status** of "
         "**[Test Issue](https://github.com/test-issue)**"
         " from **Done** to **In progress**"
     )
