@@ -64,12 +64,11 @@ async def close(ctx):
         # Remove command message
         await ctx.message.delete()
 
-        # We need to archive after adding tags in case it was a forum.
-        # Otherwise we only archive the thread
-        await channel.edit(archived=True)
-
         # Send notification to the thread
         await channel.send(f"# This was marked as done by {author.mention}")
+        
+        # We need to archive after adding tags in case it was a forum.
+        await channel.edit(archived=True)
 
 
 
