@@ -41,11 +41,11 @@ async def wiki(ctx):
 @bot.command()
 async def close(ctx):
     channel = ctx.channel
-    parent = channel.parent
     author = ctx.message.author
 
     # Check if it's a public or private post (thread)
     if channel.type in (discord.ChannelType.public_thread, discord.ChannelType.private_thread):
+        parent = channel.parent
 
         # Check if the post (thread) was sent in a forum,
         # so we can add a tag

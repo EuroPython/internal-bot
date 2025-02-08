@@ -123,7 +123,6 @@ async def test_close_command_notworking():
     # Mock context
     ctx = AsyncMock()
     ctx.channel = AsyncMock()
-    ctx.message.author = AsyncMock()
 
     # Call the command
     await close(ctx)
