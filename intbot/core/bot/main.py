@@ -65,7 +65,7 @@ async def close(ctx):
         await ctx.message.delete()
 
         # Send notification to the thread
-        await channel.send(f"# This was marked as done by {author.mention}")
+        await channel.send(f"# This was marked as done by {author.mention}", suppress_embeds=True)
 
         # We need to archive after adding tags in case it was a forum.
         await channel.edit(archived=True)

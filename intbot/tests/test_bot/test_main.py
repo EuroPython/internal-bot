@@ -105,17 +105,16 @@ async def test_wiki_command():
 async def test_close_command():
     # Mock context
     ctx = AsyncMock()
-    ctx.channel = discord.Thread()
-    ctx.channel.parent = discord.ForumChannel()
-    ctx.author = discord.Member()
-    ctx.author.mention = "TestUser"
+    ctx.channel = AsyncMock()
+    ctx.message.author = AsyncMock()
+    ctx.channel.type = discord.ChannelType.public_thread
 
     # Call the command
     await close(ctx)
 
     # Assert that the command sent the expected message
-    ctx.send.assert_called_once_with(
-        "# This was marked as done by {ctx.author.mention}",
+    ctx.channel.send.assert_called_once_with(
+        f"# This was marked as done by {ctx.message.author.mention}",
         suppress_embeds=True,
     )
 
