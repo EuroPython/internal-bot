@@ -1,6 +1,7 @@
 from unittest import mock
 from unittest.mock import AsyncMock, patch
 import contextlib
+import discord
 
 from django.db import connections
 
