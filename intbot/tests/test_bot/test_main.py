@@ -102,7 +102,7 @@ async def test_wiki_command():
     )
 
 @pytest.mark.asyncio
-async def test_close_command():
+async def test_close_command_working():
     # Mock context
     ctx = AsyncMock()
     ctx.channel = AsyncMock()
@@ -116,6 +116,23 @@ async def test_close_command():
     ctx.channel.send.assert_called_once_with(
         f"# This was marked as done by {ctx.message.author.mention}",
         suppress_embeds=True,
+    )
+
+@pytest.mark.asyncio
+async def test_close_command_notworking():
+    # Mock context
+    ctx = AsyncMock()
+    ctx.channel = AsyncMock()
+    ctx.message.author = AsyncMock()
+
+    # Call the command
+    await close(ctx)
+
+    # Assert that the command sent the expected message
+    ctx.channel.send.assert_called_once_with(
+        "The !close command is intended to be used inside a thread/post",
+        suppress_embeds=True,
+        delete_after=5
     )
 
 

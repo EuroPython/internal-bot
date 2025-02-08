@@ -69,6 +69,13 @@ async def close(ctx):
 
         # We need to archive after adding tags in case it was a forum.
         await channel.edit(archived=True)
+    else:
+        # Remove command message
+        await ctx.message.delete()
+
+        await channel.send("The !close command is intended to be used inside a thread/post",
+                           suppress_embeds=True,
+                           delete_after=5)
 
 
 
