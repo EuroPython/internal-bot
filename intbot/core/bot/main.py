@@ -38,6 +38,46 @@ async def wiki(ctx):
         suppress_embeds=True,
     )
 
+@bot.command()
+async def close(ctx):
+    channel = ctx.channel
+    parent = channel.parent
+    author = ctx.message.author
+
+    # Check if it's a public or private post (thread)
+    if channel.type in (discord.ChannelType.public_thread, discord.ChannelType.private_thread):
+
+        # Check if the post (thread) was sent in a forum,
+        # so we can add a tag
+        if parent.type == discord.ChannelType.forum:
+
+            # Get tag from forum
+            tag = None
+            for _tag in parent.available_tags:
+                if _tag.name.lower() == "done":
+                    tag = _tag
+                    break
+
+            if tag is not None:
+                await channel.add_tags(tag)
+
+        # Remove command message
+        await ctx.message.delete()
+
+        # Send notification to the thread
+        await channel.send(f"# This was marked as done by {author.mention}", suppress_embeds=True)
+
+        # We need to archive after adding tags in case it was a forum.
+        await channel.edit(archived=True)
+    else:
+        # Remove command message
+        await ctx.message.delete()
+
+        await channel.send("The !close command is intended to be used inside a thread/post",
+                           suppress_embeds=True,
+                           delete_after=5)
+
+
 
 @bot.command()
 async def version(ctx):

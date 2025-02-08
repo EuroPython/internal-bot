@@ -1,12 +1,13 @@
 from unittest import mock
 from unittest.mock import AsyncMock, patch
 import contextlib
+import discord
 
 from django.db import connections
 
 import pytest
 from asgiref.sync import sync_to_async
-from core.bot.main import ping, poll_database, qlen, source, version, wiki
+from core.bot.main import ping, poll_database, qlen, source, version, wiki, close
 from core.models import DiscordMessage
 from django.utils import timezone
 
@@ -98,6 +99,40 @@ async def test_wiki_command():
         "Please add it to the wiki: "
         "[ep2025-wiki.europython.eu](https://ep2025-wiki.europython.eu)",
         suppress_embeds=True,
+    )
+
+@pytest.mark.asyncio
+async def test_close_command_working():
+    # Mock context
+    ctx = AsyncMock()
+    ctx.channel = AsyncMock()
+    ctx.message.author = AsyncMock()
+    ctx.channel.type = discord.ChannelType.public_thread
+
+    # Call the command
+    await close(ctx)
+
+    # Assert that the command sent the expected message
+    ctx.channel.send.assert_called_once_with(
+        f"# This was marked as done by {ctx.message.author.mention}",
+        suppress_embeds=True,
+    )
+
+@pytest.mark.asyncio
+async def test_close_command_notworking():
+    # Mock context
+    ctx = AsyncMock()
+    ctx.channel = AsyncMock()
+    ctx.message.author = AsyncMock()
+
+    # Call the command
+    await close(ctx)
+
+    # Assert that the command sent the expected message
+    ctx.channel.send.assert_called_once_with(
+        "The !close command is intended to be used inside a thread/post",
+        suppress_embeds=True,
+        delete_after=5
     )
 
 
