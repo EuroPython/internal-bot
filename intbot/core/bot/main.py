@@ -2,6 +2,7 @@ import discord
 from core.models import DiscordMessage
 from discord.ext import commands, tasks
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
 
 intents = discord.Intents.default()
@@ -38,19 +39,22 @@ async def wiki(ctx):
         suppress_embeds=True,
     )
 
+
 @bot.command()
 async def close(ctx):
     channel = ctx.channel
     author = ctx.message.author
 
     # Check if it's a public or private post (thread)
-    if channel.type in (discord.ChannelType.public_thread, discord.ChannelType.private_thread):
+    if channel.type in (
+        discord.ChannelType.public_thread,
+        discord.ChannelType.private_thread,
+    ):
         parent = channel.parent
 
         # Check if the post (thread) was sent in a forum,
         # so we can add a tag
         if parent.type == discord.ChannelType.forum:
-
             # Get tag from forum
             tag = None
             for _tag in parent.available_tags:
@@ -65,7 +69,9 @@ async def close(ctx):
         await ctx.message.delete()
 
         # Send notification to the thread
-        await channel.send(f"# This was marked as done by {author.mention}", suppress_embeds=True)
+        await channel.send(
+            f"# This was marked as done by {author.mention}", suppress_embeds=True
+        )
 
         # We need to archive after adding tags in case it was a forum.
         await channel.edit(archived=True)
@@ -73,10 +79,11 @@ async def close(ctx):
         # Remove command message
         await ctx.message.delete()
 
-        await channel.send("The !close command is intended to be used inside a thread/post",
-                           suppress_embeds=True,
-                           delete_after=5)
-
+        await channel.send(
+            "The !close command is intended to be used inside a thread/post",
+            suppress_embeds=True,
+            delete_after=5,
+        )
 
 
 @bot.command()
@@ -94,7 +101,10 @@ async def qlen(ctx):
 
 
 def get_messages():
-    messages = DiscordMessage.objects.filter(sent_at__isnull=True)
+    messages = DiscordMessage.objects.filter(
+        Q(send_after__isnull=True) | Q(send_after__lte=timezone.now()),
+        sent_at__isnull=True,
+    )
     return messages
 
 
