@@ -1,14 +1,14 @@
+import contextlib
+from datetime import timedelta
 from unittest import mock
 from unittest.mock import AsyncMock, patch
-import contextlib
+
 import discord
-
-from django.db import connections
-
 import pytest
 from asgiref.sync import sync_to_async
-from core.bot.main import ping, poll_database, qlen, source, version, wiki, close
+from core.bot.main import close, ping, poll_database, qlen, source, version, wiki
 from core.models import DiscordMessage
+from django.db import connections
 from django.utils import timezone
 
 # NOTE(artcz)
@@ -101,6 +101,7 @@ async def test_wiki_command():
         suppress_embeds=True,
     )
 
+
 @pytest.mark.asyncio
 async def test_close_command_working():
     # Mock context
@@ -118,6 +119,7 @@ async def test_close_command_working():
         suppress_embeds=True,
     )
 
+
 @pytest.mark.asyncio
 async def test_close_command_notworking():
     # Mock context
@@ -131,7 +133,7 @@ async def test_close_command_notworking():
     ctx.channel.send.assert_called_once_with(
         "The !close command is intended to be used inside a thread/post",
         suppress_embeds=True,
-        delete_after=5
+        delete_after=5,
     )
 
 
@@ -235,12 +237,40 @@ async def test_polling_messages_sends_nothing_if_all_messages_are_sent():
 
 @pytest.mark.asyncio
 @pytest.mark.django_db
-async def test_polling_messages_sends_message_if_not_sent_and_sets_sent_at():
+async def test_polling_messages_sends_nothing_if_all_messages_in_the_future():
+    mock_channel = AsyncMock()
+    mock_channel.send = AsyncMock()
+    await DiscordMessage.objects.acreate(
+        send_after=timezone.now() + timedelta(hours=3),
+        sent_at=None,
+    )
+
+    with patch("core.bot.main.bot.get_channel", return_value=mock_channel):
+        await poll_database()
+
+    mock_channel.send.assert_not_called()
+
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "send_after",
+    [
+        None,
+        timezone.now(),
+    ],
+    ids=[
+        "send_after_isnull",
+        "send_after_is_in_the_past",
+    ],
+)
+async def test_polling_messages_sends_message_if_not_sent_and_sets_sent_at(send_after):
     start = timezone.now()
     dm = await DiscordMessage.objects.acreate(
         channel_id="1234",
         content="asdf",
         sent_at=None,
+        send_after=send_after,
     )
     mock_channel = AsyncMock()
     mock_channel.send = AsyncMock()

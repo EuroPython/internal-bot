@@ -44,7 +44,10 @@ class DiscordMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-    # Messages to be have null here
+    # To delay messages to be sent after certain timestmap in the future
+    send_after = models.DateTimeField(blank=True, null=True)
+
+    # Messages to be sent have null here
     sent_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
