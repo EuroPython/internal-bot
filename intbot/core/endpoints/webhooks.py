@@ -62,7 +62,7 @@ def github_webhook_endpoint(request):
             extra={},
         )
         process_webhook.enqueue(str(wh.uuid))
-        return JsonResponse({"status": "ok"})
+        return JsonResponse({"status": "created", "guid": wh.uuid})
 
     return HttpResponseNotAllowed("Only POST")
 
@@ -84,6 +84,54 @@ def verify_github_signature(request) -> str:
     expected = "sha256=" + hashed.hexdigest()
 
     if not hmac.compare_digest(expected, signature):
-        raise ValueError("Signature's don't match")
+        raise ValueError("Signatures don't match")
+
+    return signature
+
+
+@csrf_exempt
+def zammad_webhook_endpoint(request):
+    if request.method == "POST":
+        zammad_headers = {
+            k: v for k, v in request.headers.items() if k.startswith("X-Zammad")
+        }
+
+        try:
+            signature = verify_zammad_signature(request)
+        except ValueError as e:
+            return HttpResponseForbidden(e)
+
+        wh = Webhook.objects.create(
+            source="zammad",
+            meta=zammad_headers,
+            signature=signature,
+            content=json.loads(request.body),
+            extra={},
+        )
+        process_webhook.enqueue(str(wh.uuid))
+        return JsonResponse({"status": "created", "guid": wh.uuid})
+
+
+    return HttpResponseNotAllowed("Only POST")
+
+
+def verify_zammad_signature(request) -> str:
+    """Verify that the payload was sent by our zammad"""
+
+    if "X-Hub-Signature" not in request.headers:
+        raise ValueError("X-Hub-Signature is missing")
+
+    signature = request.headers["X-Hub-Signature"]
+
+    hashed = hmac.new(
+        settings.ZAMMAD_WEBHOOK_SECRET_TOKEN.encode("utf-8"),
+        msg=request.body,
+        digestmod=hashlib.sha1,
+    )
+
+    expected = "sha1=" + hashed.hexdigest()
+
+    if not hmac.compare_digest(expected, signature):
+        raise ValueError("Signatures don't match")
 
     return signature
