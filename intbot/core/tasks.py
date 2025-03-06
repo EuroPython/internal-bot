@@ -76,4 +76,4 @@ def process_github_webhook(wh: Webhook):
 def process_zammad_webhook(wh: Webhook):
     # NOTE(artcz) Do nothing for now. Just a placeholder.
     # Processing will come in the next PR.
-    return None
+    return
