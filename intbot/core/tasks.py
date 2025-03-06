@@ -19,6 +19,9 @@ def process_webhook(wh_uuid: str):
     elif wh.source == "github":
         process_github_webhook(wh)
 
+    elif wh.source == "zammad":
+        process_zammad_webhook(wh)
+
     else:
         raise ValueError(f"Unsupported source {wh.source}")
 
@@ -32,8 +35,6 @@ def process_internal_webhook(wh: Webhook):
     DiscordMessage.objects.create(
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
-        # channel_id=settings.DISCORD_TEST_CHANNEL_ID,
-        # channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
         content=f"Webhook content: {wh.content}",
         # Mark as not sent - to be sent with the next batch
         sent_at=None,
@@ -70,3 +71,9 @@ def process_github_webhook(wh: Webhook):
     )
     wh.processed_at = timezone.now()
     wh.save()
+
+
+def process_zammad_webhook(wh: Webhook):
+    # NOTE(artcz) Do nothing for now. Just a placeholder.
+    # Processing will come in the next PR.
+    return
