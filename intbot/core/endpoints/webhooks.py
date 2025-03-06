@@ -23,6 +23,8 @@ def internal_webhook_endpoint(request):
             content=json.loads(request.body),
             extra={},
         )
+        # Schedule a task for the worker to process the webhook outside of
+        # request/response cycle.
         process_webhook.enqueue(str(wh.uuid))
 
         return JsonResponse({"status": "created", "guid": wh.uuid})
@@ -45,14 +47,14 @@ def verify_internal_webhook(request):
 @csrf_exempt
 def github_webhook_endpoint(request):
     if request.method == "POST":
-        github_headers = {
-            k: v for k, v in request.headers.items() if k.startswith("X-Github")
-        }
-
         try:
             signature = verify_github_signature(request)
         except ValueError as e:
             return HttpResponseForbidden(e)
+
+        github_headers = {
+            k: v for k, v in request.headers.items() if k.startswith("X-Github")
+        }
 
         wh = Webhook.objects.create(
             source="github",
@@ -61,6 +63,8 @@ def github_webhook_endpoint(request):
             content=json.loads(request.body),
             extra={},
         )
+        # Schedule a task for the worker to process the webhook outside of
+        # request/response cycle.
         process_webhook.enqueue(str(wh.uuid))
         return JsonResponse({"status": "created", "guid": wh.uuid})
 
@@ -92,14 +96,14 @@ def verify_github_signature(request) -> str:
 @csrf_exempt
 def zammad_webhook_endpoint(request):
     if request.method == "POST":
-        zammad_headers = {
-            k: v for k, v in request.headers.items() if k.startswith("X-Zammad")
-        }
-
         try:
             signature = verify_zammad_signature(request)
         except ValueError as e:
             return HttpResponseForbidden(e)
+
+        zammad_headers = {
+            k: v for k, v in request.headers.items() if k.startswith("X-Zammad")
+        }
 
         wh = Webhook.objects.create(
             source="zammad",
@@ -108,9 +112,10 @@ def zammad_webhook_endpoint(request):
             content=json.loads(request.body),
             extra={},
         )
+        # Schedule a task for the worker to process the webhook outside of
+        # request/response cycle.
         process_webhook.enqueue(str(wh.uuid))
         return JsonResponse({"status": "created", "guid": wh.uuid})
-
 
     return HttpResponseNotAllowed("Only POST")
 

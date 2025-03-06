@@ -58,8 +58,10 @@ worker:
 test:
 	$(TEST_CMD) -s -v
 
-test_:
+test_last_failed:
 	$(TEST_CMD) -s -v --last-failed
+
+test_: test_last_failed
 
 test/k:
 	$(TEST_CMD) -s -v -k $(K)
