@@ -59,6 +59,8 @@ def process_github_webhook(wh: Webhook):
     channel = discord_channel_router(wh)
 
     if channel == dont_send_it:
+        # Mark as processed, to avoid re-processing in the future if we
+        # shouldn't send a message.
         wh.processed_at = timezone.now()
         wh.save()
         return
@@ -86,6 +88,8 @@ def process_zammad_webhook(wh: Webhook):
     channel = discord_channel_router(wh)
 
     if channel == dont_send_it:
+        # Mark as processed, to avoid re-processing in the future if we
+        # shouldn't send a message.
         wh.processed_at = timezone.now()
         wh.save()
         return
