@@ -76,7 +76,7 @@ class ZammadParser:
         """
         Zammad doesn't give us an action inside the webhook, so we can either
         set custom triggers and URLs for every action, or we can try to infer
-        the action from the content of the webhook. For simplcity of the
+        the action from the content of the webhook. For simplicity of the
         overall setup, we are implementing the latter here.
 
         "New Ticket created"?                -- has article, and len(article_ids) == 1
