@@ -97,7 +97,7 @@ def process_zammad_webhook(wh: Webhook):
     DiscordMessage.objects.create(
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
-        content=f"Zammad: {wh.meta['message']}",
+        content=f"Zammad: {wh.extra['message']}",
         # Mark as unsent - to be sent with the next batch
         sent_at=None,
     )
