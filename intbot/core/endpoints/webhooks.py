@@ -107,6 +107,12 @@ def zammad_webhook_endpoint(request):
 
         wh = Webhook.objects.create(
             source="zammad",
+            # Because the webhooks just send full objects without indication
+            # what changed, or what triggered the action, we will custom URLs
+            # for different types of actions.
+            # In other words – how the webhook is processed on the backend
+            # depends the Trigger configuration in zammad.
+            # action=action,
             meta=zammad_headers,
             signature=signature,
             content=json.loads(request.body),
@@ -117,7 +123,7 @@ def zammad_webhook_endpoint(request):
         process_webhook.enqueue(str(wh.uuid))
         return JsonResponse({"status": "created", "guid": wh.uuid})
 
-    return HttpResponseNotAllowed("Only POST")
+    return HttpResponseNotAllowed(permitted_methods=["POST"])
 
 
 def verify_zammad_signature(request) -> str:

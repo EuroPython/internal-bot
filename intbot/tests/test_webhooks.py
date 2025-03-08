@@ -210,3 +210,8 @@ def test_zammad_webhook_endpoint_works_with_correct_token(client):
     assert response.json()["status"] == "created"
     assert response.json()["guid"] == str(wh.uuid)
     assert wh.source == "zammad"
+
+
+def test_zammad_webhook_endpoint_fails_if_request_not_post(client):
+    response = client.get("/webhook/zammad/")
+    assert response.status_code == 405

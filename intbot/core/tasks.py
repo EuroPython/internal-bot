@@ -1,6 +1,7 @@
 import logging
 
 from core.integrations.github import parse_github_webhook, prep_github_webhook
+from core.integrations.zammad import prep_zammad_webhook
 from core.bot.channel_router import discord_channel_router, dont_send_it
 from core.models import DiscordMessage, Webhook
 from django.utils import timezone
@@ -66,7 +67,7 @@ def process_github_webhook(wh: Webhook):
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
         content=f"GitHub: {parsed.as_discord_message()}",
-        # Mark as unsend - to be sent with the next batch
+        # Mark as unsent - to be sent with the next batch
         sent_at=None,
     )
     wh.processed_at = timezone.now()
@@ -74,6 +75,27 @@ def process_github_webhook(wh: Webhook):
 
 
 def process_zammad_webhook(wh: Webhook):
-    # NOTE(artcz) Do nothing for now. Just a placeholder.
-    # Processing will come in the next PR.
-    return
+    if wh.source != "zammad":
+        raise ValueError("Incorrect wh.source = {wh.source}")
+
+    # Unlike in github, the zammad webhook is richer and
+    # contains much more information, so no extra fetch is needed.
+    # However, we can extract information and store it in the meta field, that
+    # way we can reuse it later more easily.
+    wh = prep_zammad_webhook(wh)
+    channel = discord_channel_router(wh)
+
+    if channel == dont_send_it:
+        wh.processed_at = timezone.now()
+        wh.save()
+        return
+
+    DiscordMessage.objects.create(
+        channel_id=channel.channel_id,
+        channel_name=channel.channel_name,
+        content=f"Zammad: {wh.meta['message']}",
+        # Mark as unsent - to be sent with the next batch
+        sent_at=None,
+    )
+    wh.processed_at = timezone.now()
+    wh.save()
