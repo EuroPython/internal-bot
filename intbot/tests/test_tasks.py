@@ -5,7 +5,7 @@ import pytest
 import respx
 from core.integrations.github import GITHUB_API_URL
 from core.models import DiscordMessage, Webhook
-from core.tasks import process_github_webhook, process_internal_webhook, process_webhook
+from core.tasks import process_github_webhook, process_internal_webhook, process_webhook, process_zammad_webhook
 from django.utils import timezone
 from django_tasks.task import ResultStatus
 from httpx import Response
@@ -165,5 +165,54 @@ def test_process_github_webhook_creates_a_message_from_supported(
         " changed **Status** of "
         "**[Test Issue](https://github.com/test-issue)**"
         " from **Done** to **In progress**"
+    )
+    assert dm.sent_at is None
+
+
+@pytest.mark.django_db
+@respx.mock
+def test_process_zammad_webhook_creates_a_message_from_supported_queue():
+    wh = Webhook.objects.create(
+        source="zammad",
+        event="",
+        meta={},
+        content={
+            "ticket": {
+                "id": 123,
+                "group": {"id": "123", "name": "TestZammad Helpdesk"},
+                "updated_by": {"firstname": "Cookie", "lastname": "Monster"},
+                "title": "Test Ticket Title",
+                "owner": {"firstname": "Kermit", "lastname": "TheFrog"},
+                "state": "open",
+                "number": "13374321",
+                "customer": {"firstname": "Cookie", "lastname": "Monster"},
+                "created_at": str(timezone.now()),
+                "updated_at": str(timezone.now()),
+                "article_ids": [1],
+            },
+            "article": {
+                "sender": "Customer",
+                "internal": False,
+                "ticket_id": 123,
+                "created_at": str(timezone.now()),
+                "created_by": {"firstname": "Cookie", "lastname": "Monster"},
+                "subject": "New Cookies please",
+            },
+        },
+        extra={},
+    )
+
+    process_zammad_webhook(wh)
+
+    dm = DiscordMessage.objects.get()
+    assert wh.processed_at is not None
+    assert wh.processed_at < timezone.now()
+    assert wh.event == "new_ticket_created"
+    assert dm.channel_id == settings.DISCORD_HELPDESK_CHANNEL_ID
+    assert dm.channel_name == settings.DISCORD_HELPDESK_CHANNEL_NAME
+    assert dm.content == (
+        "Zammad: "
+        "TestZammad Helpdesk: Cookie created new ticket "
+        "https://servicedesk.europython.eu/#ticket/zoom/123"
     )
     assert dm.sent_at is None
