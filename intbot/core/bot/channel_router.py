@@ -9,6 +9,7 @@ from core.integrations.github import (
     GithubRepositories,
     parse_github_webhook,
 )
+from core.integrations.zammad import ZammadConfig
 from core.models import Webhook
 from django.conf import settings
 
@@ -23,6 +24,7 @@ dont_send_it = DiscordChannel(channel_id="0", channel_name="DONT_SEND_IT")
 
 
 class Channels:
+    # Github
     test_channel = DiscordChannel(
         channel_id=settings.DISCORD_TEST_CHANNEL_ID,
         channel_name=settings.DISCORD_TEST_CHANNEL_NAME,
@@ -49,10 +51,23 @@ class Channels:
         channel_name=settings.DISCORD_BOT_CHANNEL_NAME,
     )
 
+    # Zammad
+    billing_channel = DiscordChannel(
+        channel_id=settings.DISCORD_BILLING_CHANNEL_ID,
+        channel_name=settings.DISCORD_BILLING_CHANNEL_NAME,
+    )
+    helpdesk_channel = DiscordChannel(
+        channel_id=settings.DISCORD_HELPDESK_CHANNEL_ID,
+        channel_name=settings.DISCORD_HELPDESK_CHANNEL_NAME,
+    )
+
 
 def discord_channel_router(wh: Webhook) -> DiscordChannel:
     if wh.source == "github":
         return github_router(wh)
+
+    elif wh.source == "zammad":
+        return zammad_router(wh)
 
     elif wh.source == "internal":
         return internal_router(wh)
@@ -88,6 +103,19 @@ def github_router(wh: Webhook) -> DiscordChannel:
 
     # Finally, we can use this to drop notifications that we don't want to
     # support, by not sending them.
+    return dont_send_it
+
+
+def zammad_router(wh: Webhook) -> DiscordChannel:
+    groups = {
+        ZammadConfig.helpdesk_group: Channels.helpdesk_channel,
+        ZammadConfig.billing_group: Channels.billing_channel,
+    }
+
+    if channel := groups.get(wh.extra["group"]):
+        return channel
+
+    # If it doesn't match any of the groups, just skip it
     return dont_send_it
 
 

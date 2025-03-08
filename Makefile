@@ -59,7 +59,7 @@ test:
 	$(TEST_CMD) -s -v
 
 test_last_failed:
-	$(TEST_CMD) -s -v --last-failed
+	$(TEST_CMD) -s -vv --last-failed
 
 test_: test_last_failed
 

@@ -117,7 +117,7 @@ def zammad_webhook_endpoint(request):
         process_webhook.enqueue(str(wh.uuid))
         return JsonResponse({"status": "created", "guid": wh.uuid})
 
-    return HttpResponseNotAllowed("Only POST")
+    return HttpResponseNotAllowed(permitted_methods=["POST"])
 
 
 def verify_zammad_signature(request) -> str:
