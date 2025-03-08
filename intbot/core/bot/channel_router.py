@@ -9,7 +9,7 @@ from core.integrations.github import (
     GithubRepositories,
     parse_github_webhook,
 )
-from core.integrations.zammad import ZammadGroups
+from core.integrations.zammad import ZammadConfig
 from core.models import Webhook
 from django.conf import settings
 
@@ -108,8 +108,8 @@ def github_router(wh: Webhook) -> DiscordChannel:
 
 def zammad_router(wh: Webhook) -> DiscordChannel:
     groups = {
-        ZammadGroups.helpdesk: Channels.helpdesk_channel,
-        ZammadGroups.billing: Channels.billing_channel,
+        ZammadConfig.helpdesk_group: Channels.helpdesk_channel,
+        ZammadConfig.billing_group: Channels.billing_channel,
     }
 
     if channel := groups.get(wh.extra["group"]):

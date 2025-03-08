@@ -5,10 +5,10 @@ from core.models import Webhook
 from pydantic import BaseModel
 
 
-class ZammadGroups:
-    billing = settings.ZAMMAD_GROUP_BILLING
-    helpdesk = settings.ZAMMAD_GROUP_HELPDESK
-
+class ZammadConfig:
+    url = settings.ZAMMAD_URL  # servicedesk.europython.eu
+    billing_group = settings.ZAMMAD_GROUP_BILLING
+    helpdesk_group = settings.ZAMMAD_GROUP_HELPDESK
 
 class ZammadGroup(BaseModel):
     id: int
@@ -92,19 +92,20 @@ class ZammadParser:
         # first message that originally creates the ticket. However first time
         # we get a message, we will return "New ticket" and second time "New
         # message in the thread".
-        if self.article and len(self.ticket.article_ids) == 1:
-            # This means we have an article, and it's a first one, therefore a
-            # ticket is new.
-            return self.Actions.new_ticket_created
+        if self.article:
+            if len(self.ticket.article_ids) == 1:
+                # This means we have an article, and it's a first one, therefore a
+                # ticket is new.
+                return self.Actions.new_ticket_created
 
-        elif self.article and self.article.internal is True:
-            return self.Actions.new_internal_note
+            elif self.article.internal is True:
+                return self.Actions.new_internal_note
 
-        elif self.article and self.article.sender == "Customer":
-            return self.Actions.new_message_in_thread
+            elif self.article.sender == "Customer":
+                return self.Actions.new_message_in_thread
 
-        elif self.article and self.article.sender == "Agent":
-            return self.Actions.replied_in_thread
+            elif self.article.sender == "Agent":
+                return self.Actions.replied_in_thread
 
         elif not self.article:
             return self.Actions.updated_ticket
@@ -121,7 +122,7 @@ class ZammadParser:
 
     @property
     def url(self):
-        return f"https://servicedesk.europython.eu/#ticket/zoom/{self.ticket.id}"
+        return f"https://{ZammadConfig.url}/#ticket/zoom/{self.ticket.id}"
 
     def to_discord_message(self):
         message = "{group}: {sender} {action} {details}".format
