@@ -9,6 +9,45 @@ The app has three main parts:
 2. **Discord Bot**: Sends messages to Discord and responds to commands
 3. **Background Worker**: Handles tasks in the background without blocking the web app
 
+Besides handling webhooks, the bot can also:
+- Respond to user commands (like `!ping`)
+- Answer questions in channels and threads
+- React to messages and reactions from users
+
+The bot code and supported commands can be found in `intbot/core/bot/main.py`.
+
+## Project Structure
+
+The codebase is organized as follows:
+
+```
+deploy/                  # Deployment configuration
+├── playbooks/           # Ansible playbooks
+└── templates/           # Templates for Docker Compose and Makefiles
+
+docs/                    # Project documentation
+├── architecture.md      # System design and structure
+└── deployment.md        # Deployment guide
+
+intbot/
+├── core/                # Main Django app with all the business logic
+│   ├── bot/             # Discord bot implementation
+│   ├── endpoints/       # API endpoints for webhooks
+│   ├── integrations/    # Integration modules (GitHub, Zammad)
+│   ├── management/      # Django management commands
+│   └── models.py        # Database models
+├── intbot/              # Django project settings
+│   ├── settings.py      # Configuration
+│   └── urls.py          # URL routing
+└── tests/               # Test suite (mirrors the application structure)
+```
+
+This structure was chosen because:
+- It's simple and has a single `core` app instead of many small apps
+- It clearly separates the integration logic from the bot logic
+- Tests mirror the application structure, making them easy to find
+- It supports multiple entry points (web server, bot, worker) from one codebase
+
 ## System Architecture
 
 ```

@@ -61,6 +61,20 @@ Check the `docs/` directory for additional information:
 * [Architecture Overview](docs/architecture.md) - Basic system design and integration workflow
 * [Deployment Guide](docs/deployment.md) - Server setup and deployment process
 
+## Project Structure
+
+This project follows a simple, focused organization:
+
+```
+deploy/    - Deployment configuration and Ansible playbooks
+docs/      - Documentation files
+intbot/    - Main application code
+ ├─ core/  - Core functionality (bot, integrations, endpoints)
+ └─ tests/ - Test suite
+```
+
+See the [Architecture Overview](docs/architecture.md) for more details.
+
 ## Local Development
 
 
