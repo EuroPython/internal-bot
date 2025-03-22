@@ -9,6 +9,10 @@ class ZammadConfig:
     url = settings.ZAMMAD_URL  # servicedesk.europython.eu
     billing_group = settings.ZAMMAD_GROUP_BILLING
     helpdesk_group = settings.ZAMMAD_GROUP_HELPDESK
+    programme_group = settings.ZAMMAD_GROUP_PROGRAMME
+    finaid_group = settings.ZAMMAD_GROUP_FINAID
+    sponsors_group = settings.ZAMMAD_GROUP_SPONSORS
+    grants_group = settings.ZAMMAD_GROUP_GRANTS
 
 class ZammadGroup(BaseModel):
     id: int

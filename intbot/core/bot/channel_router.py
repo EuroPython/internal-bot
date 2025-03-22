@@ -60,6 +60,22 @@ class Channels:
         channel_id=settings.DISCORD_HELPDESK_CHANNEL_ID,
         channel_name=settings.DISCORD_HELPDESK_CHANNEL_NAME,
     )
+    programme_channel = DiscordChannel(
+        channel_id=settings.DISCORD_PROGRAMME_CHANNEL_ID,
+        channel_name=settings.DISCORD_PROGRAMME_CHANNEL_NAME,
+    )
+    finaid_channel = DiscordChannel(
+        channel_id=settings.DISCORD_FINAID_CHANNEL_ID,
+        channel_name=settings.DISCORD_FINAID_CHANNEL_NAME,
+    )
+    sponsors_channel = DiscordChannel(
+        channel_id=settings.DISCORD_SPONSORS_CHANNEL_ID,
+        channel_name=settings.DISCORD_SPONSORS_CHANNEL_NAME,
+    )
+    grants_channel = DiscordChannel(
+        channel_id=settings.DISCORD_GRANTS_CHANNEL_ID,
+        channel_name=settings.DISCORD_GRANTS_CHANNEL_NAME,
+    )
 
 
 def discord_channel_router(wh: Webhook) -> DiscordChannel:
@@ -110,6 +126,10 @@ def zammad_router(wh: Webhook) -> DiscordChannel:
     groups = {
         ZammadConfig.helpdesk_group: Channels.helpdesk_channel,
         ZammadConfig.billing_group: Channels.billing_channel,
+        ZammadConfig.programme_group: Channels.programme_channel,
+        ZammadConfig.finaid_group: Channels.finaid_channel,
+        ZammadConfig.sponsors_group: Channels.sponsors_channel,
+        ZammadConfig.grants_group: Channels.grants_channel,
     }
 
     if channel := groups.get(wh.extra["group"]):
