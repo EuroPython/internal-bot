@@ -49,3 +49,35 @@ class DiscordMessage(models.Model):
 
     def __str__(self):
         return f"{self.uuid} {self.content[:30]}"
+
+
+class InboxItem(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4)
+
+    # Discord message details
+    message_id = models.CharField(max_length=255)
+    channel_id = models.CharField(max_length=255)
+    channel_name = models.CharField(max_length=255)
+    server_id = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+
+    # User who added the message to their inbox
+    user_id = models.CharField(max_length=255)
+    content = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def url(self) -> str:
+        """Return URL to the Discord message"""
+        return f"https://discord.com/channels/{self.server_id}/{self.channel_id}/{self.message_id}"
+
+    def summary(self) -> str:
+        """Return a summary of the inbox item for use in Discord messages"""
+        timestamp = self.created_at.strftime("%Y-%m-%d %H:%M")
+        return (
+            f"`{timestamp}` | from **{self.author}** @ **{self.channel_name}**: "
+            f"[{self.content[:30]}...]({self.url()})"
+        )
+
+    def __str__(self):
+        return f"{self.uuid} {self.author}: {self.content[:30]}"

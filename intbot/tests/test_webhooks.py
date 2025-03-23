@@ -85,6 +85,7 @@ def test_github_webhook_endpoint_checks_authorization_token(client):
     assert response.status_code == 403
     assert response.content == "X-Hub-Signature-256 is missing".encode("utf-8")
 
+
 def sign_github_webhook(webhook_body):
     hashed = hmac.new(
         settings.GITHUB_WEBHOOK_SECRET_TOKEN.encode("utf-8"),

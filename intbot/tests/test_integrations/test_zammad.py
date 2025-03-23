@@ -1,4 +1,3 @@
-
 import pytest
 from core.integrations.zammad import ZammadParser, prep_zammad_webhook
 from core.models import Webhook

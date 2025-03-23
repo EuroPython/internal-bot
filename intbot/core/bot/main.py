@@ -1,5 +1,5 @@
 import discord
-from core.models import DiscordMessage
+from core.models import DiscordMessage, InboxItem
 from discord.ext import commands, tasks
 from django.conf import settings
 from django.utils import timezone
@@ -10,11 +10,77 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Inbox emoji used for adding messages to user's inbox
+INBOX_EMOJI = "📥"
+
 
 @bot.event
 async def on_ready():
     print(f"Bot is ready. Logged in as {bot.user}")
     poll_database.start()  # Start polling the database
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    """Handle adding messages to inbox when users react with the inbox emoji"""
+    if payload.emoji.name == INBOX_EMOJI:
+        # Get the channel and message details
+        channel = bot.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        # Create a new inbox item using async
+        await InboxItem.objects.acreate(
+            message_id=str(message.id),
+            channel_id=str(payload.channel_id),
+            channel_name=f"#{channel.name}",
+            server_id=str(payload.guild_id),
+            user_id=str(payload.user_id),
+            author=str(message.author.name),
+            content=message.content,
+        )
+
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    """Handle removing messages from inbox when users remove the inbox emoji"""
+    if payload.emoji.name == INBOX_EMOJI:
+        # Remove the inbox item
+        items = InboxItem.objects.filter(
+            message_id=str(payload.message_id),
+            user_id=str(payload.user_id),
+        )
+        await items.adelete()
+
+
+@bot.command()
+async def inbox(ctx):
+    """
+    Displays the content of the inbox for the user that calls the command.
+
+    Each message is saved with user_id (which is a discord id), and here we can
+    filter out all those messages depending on who called the command.
+
+    It retuns all tracked messages, starting from the one most recently saved
+    (a message that was most recently tagged with inbox emoji, not the message
+    that was most recently sent).
+    """
+    user_id = str(ctx.message.author.id)
+    inbox_items = InboxItem.objects.filter(user_id=user_id).order_by("-created_at")
+
+    # Use async query
+    if not await inbox_items.aexists():
+        await ctx.send("Your inbox is empty.")
+        return
+
+    msg = "Currently tracking the following messages:\n"
+
+    async for item in inbox_items:
+        msg += "* " + item.summary() + "\n"
+
+    # Create an embed to display the inbox
+    embed = discord.Embed()
+    embed.description = msg
+    await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -38,19 +104,22 @@ async def wiki(ctx):
         suppress_embeds=True,
     )
 
+
 @bot.command()
 async def close(ctx):
     channel = ctx.channel
     author = ctx.message.author
 
     # Check if it's a public or private post (thread)
-    if channel.type in (discord.ChannelType.public_thread, discord.ChannelType.private_thread):
+    if channel.type in (
+        discord.ChannelType.public_thread,
+        discord.ChannelType.private_thread,
+    ):
         parent = channel.parent
 
         # Check if the post (thread) was sent in a forum,
         # so we can add a tag
         if parent.type == discord.ChannelType.forum:
-
             # Get tag from forum
             tag = None
             for _tag in parent.available_tags:
@@ -65,7 +134,9 @@ async def close(ctx):
         await ctx.message.delete()
 
         # Send notification to the thread
-        await channel.send(f"# This was marked as done by {author.mention}", suppress_embeds=True)
+        await channel.send(
+            f"# This was marked as done by {author.mention}", suppress_embeds=True
+        )
 
         # We need to archive after adding tags in case it was a forum.
         await channel.edit(archived=True)
@@ -73,10 +144,11 @@ async def close(ctx):
         # Remove command message
         await ctx.message.delete()
 
-        await channel.send("The !close command is intended to be used inside a thread/post",
-                           suppress_embeds=True,
-                           delete_after=5)
-
+        await channel.send(
+            "The !close command is intended to be used inside a thread/post",
+            suppress_embeds=True,
+            delete_after=5,
+        )
 
 
 @bot.command()

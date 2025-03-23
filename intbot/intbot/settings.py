@@ -192,7 +192,6 @@ ZAMMAD_GROUP_SPONSORS = get("ZAMMAD_GROUP_SPONSORS")
 ZAMMAD_GROUP_GRANTS = get("ZAMMAD_GROUP_GRANTS")
 
 
-
 if DJANGO_ENV == "dev":
     DEBUG = True
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
@@ -276,8 +275,6 @@ elif DJANGO_ENV == "test":
 
     ZAMMAD_GROUP_HELPDESK = "TestZammad Helpdesk"
     ZAMMAD_GROUP_BILLING = "TestZammad Billing"
-
-
 
 
 elif DJANGO_ENV == "local_container":
