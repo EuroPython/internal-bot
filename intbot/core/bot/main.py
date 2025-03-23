@@ -29,7 +29,7 @@ async def on_raw_reaction_add(payload):
         message = await channel.fetch_message(payload.message_id)
 
         # Create a new inbox item using async
-        item = InboxItem(
+        await InboxItem.objects.acreate(
             message_id=str(message.id),
             channel_id=str(payload.channel_id),
             channel_name=f"#{channel.name}",
@@ -38,7 +38,6 @@ async def on_raw_reaction_add(payload):
             author=str(message.author.name),
             content=message.content,
         )
-        await item.asave()
 
 
 @bot.event
@@ -55,16 +54,26 @@ async def on_raw_reaction_remove(payload):
 
 @bot.command()
 async def inbox(ctx):
-    """Display a user's inbox items"""
+    """
+    Displays the content of the inbox for the user that calls the command.
+
+    Each message is saved with user_id (which is a discord id), and here we can
+    filter out all those messages depending on who called the command.
+
+    It retuns all tracked messages, starting from the one most recently saved
+    (a message that was most recently tagged with inbox emoji, not the message
+    that was most recently sent).
+    """
     user_id = str(ctx.message.author.id)
     inbox_items = InboxItem.objects.filter(user_id=user_id).order_by("-created_at")
 
-    msg = "Currently tracking the following messages:\n"
 
     # Use async query
     if not await inbox_items.aexists():
         await ctx.send("Your inbox is empty.")
         return
+
+    msg = "Currently tracking the following messages:\n"
 
     async for item in inbox_items:
         msg += "* " + item.summary() + "\n"
