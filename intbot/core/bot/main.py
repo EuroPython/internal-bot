@@ -67,7 +67,6 @@ async def inbox(ctx):
     user_id = str(ctx.message.author.id)
     inbox_items = InboxItem.objects.filter(user_id=user_id).order_by("-created_at")
 
-
     # Use async query
     if not await inbox_items.aexists():
         await ctx.send("Your inbox is empty.")

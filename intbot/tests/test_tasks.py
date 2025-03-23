@@ -5,7 +5,12 @@ import pytest
 import respx
 from core.integrations.github import GITHUB_API_URL
 from core.models import DiscordMessage, Webhook
-from core.tasks import process_github_webhook, process_internal_webhook, process_webhook, process_zammad_webhook
+from core.tasks import (
+    process_github_webhook,
+    process_internal_webhook,
+    process_webhook,
+    process_zammad_webhook,
+)
 from django.utils import timezone
 from django_tasks.task import ResultStatus
 from httpx import Response

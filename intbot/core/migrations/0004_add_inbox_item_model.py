@@ -5,25 +5,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_added_extra_field_to_webhook'),
+        ("core", "0003_added_extra_field_to_webhook"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='InboxItem',
+            name="InboxItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4)),
-                ('message_id', models.CharField(max_length=255)),
-                ('channel_id', models.CharField(max_length=255)),
-                ('channel_name', models.CharField(max_length=255)),
-                ('server_id', models.CharField(max_length=255)),
-                ('author', models.CharField(max_length=255)),
-                ('user_id', models.CharField(max_length=255)),
-                ('content', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4)),
+                ("message_id", models.CharField(max_length=255)),
+                ("channel_id", models.CharField(max_length=255)),
+                ("channel_name", models.CharField(max_length=255)),
+                ("server_id", models.CharField(max_length=255)),
+                ("author", models.CharField(max_length=255)),
+                ("user_id", models.CharField(max_length=255)),
+                ("content", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
     ]

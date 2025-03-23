@@ -35,6 +35,7 @@ async def test_wiki_command():
         suppress_embeds=True,
     )
 
+
 @pytest.mark.asyncio
 async def test_close_command_working():
     # Mock context
@@ -52,6 +53,7 @@ async def test_close_command_working():
         suppress_embeds=True,
     )
 
+
 @pytest.mark.asyncio
 async def test_close_command_notworking():
     # Mock context
@@ -65,7 +67,7 @@ async def test_close_command_notworking():
     ctx.channel.send.assert_called_once_with(
         "The !close command is intended to be used inside a thread/post",
         suppress_embeds=True,
-        delete_after=5
+        delete_after=5,
     )
 
 

@@ -78,6 +78,6 @@ class InboxItem(models.Model):
             f"`{timestamp}` | from **{self.author}** @ **{self.channel_name}**: "
             f"[{self.content[:30]}...]({self.url()})"
         )
-    
+
     def __str__(self):
         return f"{self.uuid} {self.author}: {self.content[:30]}"

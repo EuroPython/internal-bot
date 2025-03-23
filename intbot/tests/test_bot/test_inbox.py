@@ -12,7 +12,6 @@ from core.models import InboxItem
 from django.utils import timezone
 
 
-
 @pytest.mark.asyncio
 @pytest.mark.django_db
 async def test_inbox_command_with_empty_inbox():

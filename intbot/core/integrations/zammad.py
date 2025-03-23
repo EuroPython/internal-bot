@@ -14,6 +14,7 @@ class ZammadConfig:
     sponsors_group = settings.ZAMMAD_GROUP_SPONSORS
     grants_group = settings.ZAMMAD_GROUP_GRANTS
 
+
 class ZammadGroup(BaseModel):
     id: int
     name: str
@@ -56,7 +57,6 @@ JsonType = dict[str, str | int | float | list | dict]
 
 
 class ZammadParser:
-
     class Actions:
         new_ticket_created = "new_ticket_created"
         new_message_in_thread = "new_message_in_thread"
@@ -142,7 +142,9 @@ class ZammadParser:
 
         action = actions[self.action]
 
-        return message(group=self.group, sender=self.updated_by, action=action, details=self.url)
+        return message(
+            group=self.group, sender=self.updated_by, action=action, details=self.url
+        )
 
     def meta(self):
         return {
