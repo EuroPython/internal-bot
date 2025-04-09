@@ -189,6 +189,16 @@ async def poll_database():
             print("Channel does not exist!")
 
 
+@bot.command()
+async def until(ctx):
+    """
+    Returns how much time left until the conference
+    """
+    delta = settings.CONFERENCE_START - timezone.now()
+
+    await ctx.send(f"{delta.days} days left until the conference")
+
+
 def run_bot():
     bot_token = settings.DISCORD_BOT_TOKEN
     bot.run(bot_token)
