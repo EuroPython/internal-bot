@@ -192,7 +192,7 @@ async def poll_database():
 @bot.command()
 async def until(ctx):
     """
-    Returns how much time left until the conference
+    Returns time left until the conference
     """
     delta = settings.CONFERENCE_START - timezone.now()
 
