@@ -24,6 +24,7 @@ dependencies = [
     "pytest-socket>=0.7.0",
     "respx>=0.22.0",
     "pydantic>=2.10.6",
+    "freezegun>=1.5.1",
 ]
 
 [tool.pytest.ini_options]

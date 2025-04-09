@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 import warnings
-from typing import Any
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,7 +53,9 @@ ROOT_URLCONF = "intbot.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -115,6 +118,9 @@ APP_VERSION = os.environ.get("APP_VERSION", "latest")[:8]
 
 # Just to make mypy happy
 TASKS: dict[str, Any]
+
+
+CONFERENCE_START = datetime(2025, 7, 14, tzinfo=timezone.utc)
 
 
 # There are bunch of settings that we can skip on dev/testing environments if

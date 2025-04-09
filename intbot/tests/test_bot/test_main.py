@@ -1,11 +1,12 @@
 from unittest.mock import AsyncMock, patch
-import discord
 
+import discord
 import pytest
 from asgiref.sync import sync_to_async
-from core.bot.main import ping, poll_database, qlen, source, version, wiki, close
+from core.bot.main import close, ping, poll_database, qlen, source, until, version, wiki
 from core.models import DiscordMessage
 from django.utils import timezone
+from freezegun import freeze_time
 
 
 @pytest.mark.asyncio
@@ -189,3 +190,13 @@ async def test_polling_messages_sends_message_if_not_sent_and_sets_sent_at():
     assert dm.sent_at is not None
     end = timezone.now()
     assert start < dm.sent_at < end
+
+
+@pytest.mark.asyncio
+@freeze_time("2025-04-05")
+async def test_until():
+    ctx = AsyncMock()
+
+    await until(ctx)
+
+    ctx.send.assert_called_once_with("100 days left until the conference")

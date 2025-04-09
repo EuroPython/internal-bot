@@ -30,6 +30,9 @@ help:
 # Local development
 # =================
 
+db:
+	docker compose up -d
+
 server:
 	$(DEV_CMD) runserver 0.0.0.0:4672
 
