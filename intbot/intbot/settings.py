@@ -197,6 +197,9 @@ ZAMMAD_GROUP_FINAID = get("ZAMMAD_GROUP_FINAID")
 ZAMMAD_GROUP_SPONSORS = get("ZAMMAD_GROUP_SPONSORS")
 ZAMMAD_GROUP_GRANTS = get("ZAMMAD_GROUP_GRANTS")
 
+# Pretalx
+PRETALX_API_TOKEN = get("PRETALX_API_TOKEN")
+
 
 if DJANGO_ENV == "dev":
     DEBUG = True
@@ -281,6 +284,8 @@ elif DJANGO_ENV == "test":
 
     ZAMMAD_GROUP_HELPDESK = "TestZammad Helpdesk"
     ZAMMAD_GROUP_BILLING = "TestZammad Billing"
+
+    PRETALX_API_TOKEN = "Test-Pretalx-API-token"
 
 
 elif DJANGO_ENV == "local_container":

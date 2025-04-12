@@ -81,3 +81,32 @@ class InboxItem(models.Model):
 
     def __str__(self):
         return f"{self.uuid} {self.author}: {self.content[:30]}"
+
+
+class PretalxData(models.Model):
+    """
+    Table to store raw data download from pretalx for later parsing.
+
+    We first download data from pretalx to this table, and then fire a separate
+    background task that pulls data from this table and stores in separate
+    "business" tables, like "Proposal" or "Speaker".
+    """
+
+    class PretalxEndpoints(models.TextChoices):
+        submissions = "submissions", "Submissions"
+        speakers = "speakers", "Speakers"
+        schedule = "schedule", "Schedule"
+
+    uuid = models.UUIDField(default=uuid.uuid4)
+    endpoint = models.CharField(
+        max_length=255,
+        choices=PretalxEndpoints.choices,
+    )
+    content = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    processed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.uuid}"
