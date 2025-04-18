@@ -70,14 +70,17 @@ class DiscordMessageAdmin(admin.ModelAdmin):
 class PretalxDataAdmin(admin.ModelAdmin):
     list_display = [
         "uuid",
-        "endpoint",
+        "resource",
         "created_at",
         "modified_at",
     ]
-    list_filter = ["created_at"]
+    list_filter = [
+        "created_at",
+        "resource",
+    ]
     readonly_fields = fields = [
         "uuid",
-        "endpoint",
+        "resource",
         "pretty_content",
         "created_at",
         "modified_at",

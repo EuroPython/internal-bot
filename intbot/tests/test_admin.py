@@ -2,7 +2,7 @@
 Sanity checks (mostly) if the admin resources are available
 """
 
-from core.models import DiscordMessage, Webhook
+from core.models import DiscordMessage, PretalxData, Webhook
 
 
 def test_admin_for_webhooks_sanity_check(admin_client):
@@ -32,3 +32,32 @@ def test_admin_for_discordmessages_sanity_check(admin_client):
     assert str(dm.uuid).encode() in response.content
     assert dm.channel_id.encode() in response.content
     assert dm.channel_name.encode() in response.content
+
+
+def test_admin_for_pretalx_data_sanity_check(admin_client):
+    url = "/admin/core/pretalxdata/"
+    pd = PretalxData.objects.create(
+        resource=PretalxData.PretalxResources.speakers,
+        content={},
+    )
+    assert pd.uuid
+
+    response = admin_client.get(url)
+
+    assert response.status_code == 200
+    assert str(pd.uuid).encode() in response.content
+    assert pd.get_resource_display().encode() in response.content
+
+def test_admin_for_pretalx_data_sanity_check(admin_client):
+    url = "/admin/core/pretalxdata/"
+    pd = PretalxData.objects.create(
+        resource=PretalxData.PretalxResources.speakers,
+        content={},
+    )
+    assert pd.uuid
+
+    response = admin_client.get(f"{url}{pd.pk}/change/")
+
+    assert response.status_code == 200
+    assert str(pd.uuid).encode() in response.content
+    assert pd.get_resource_display().encode() in response.content
