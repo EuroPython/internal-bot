@@ -46,13 +46,12 @@ def fetch_pretalx_data(
     # Pretalx paginates the output, so we will need to do multiple requests and
     # then merge multiple pages to one big dictionary
     results = []
-    data = {"next": url}
     page = 0
 
-    # This takes advantage of the fact that "next" will contain a url to the
+    # This takes advantage of the fact that url will contain a url to the
     # next page, until there is more data to fetch. If this is the last page,
-    # then the data["next"] will be None (falsy), and thus stop the while loop.
-    while url := data["next"]:
+    # then the url will be None (falsy), and thus stop the while loop.
+    while url:
         page += 1
         response = httpx.get(url, headers=headers)
 
@@ -64,6 +63,7 @@ def fetch_pretalx_data(
 
         data = response.json()
         results += data["results"]
+        url = data["next"]
 
     return results
 
