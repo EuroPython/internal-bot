@@ -8,16 +8,17 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 PRETALX_EVENTS = [
-    "ep2023",
-    "ep2024",
-    "ep2025",
+    "europython-2022",
+    "europython-2023",
+    "europython-2024",
+    "europython-2025",
 ]
 
 ENDPOINTS = {
     # Questions need to be passed to include answers in the same endpoint,
     # saving us later time with joining the answers.
-    PretalxData.PretalxResources.submissions: "submissions?questions=all",
-    PretalxData.PretalxResources.speakers: "speakers?questions=all",
+    PretalxData.PretalxResources.submissions: "submissions/?questions=all",
+    PretalxData.PretalxResources.speakers: "speakers/?questions=all",
 }
 
 
@@ -54,6 +55,7 @@ def fetch_pretalx_data(event: str, resource: PretalxData.PretalxResources) -> li
         response = httpx.get(url, headers=headers)
 
         if response.status_code != 200:
+            breakpoint()
             raise Exception(f"Error {response.status_code}: {response.text}")
 
         logger.info("Fetching data from %s, page %s", url, page)

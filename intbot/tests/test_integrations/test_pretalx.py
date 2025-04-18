@@ -64,13 +64,13 @@ def speaker_pages_generator(url):
 
 @respx.mock
 def test_fetch_submissions_from_pretalx():
-    url = "https://pretalx.com/api/events/ep2025/submissions?questions=all"
+    url = "https://pretalx.com/api/events/europython-2025/submissions/?questions=all"
     data = submissions_pages_generator(url)
     respx.get(url).mock(return_value=next(data))
     respx.get(url + "&page=2").mock(return_value=next(data))
 
     submissions = pretalx.fetch_pretalx_data(
-        "ep2025",
+        "europython-2025",
         PretalxData.PretalxResources.submissions,
     )
 
@@ -82,13 +82,13 @@ def test_fetch_submissions_from_pretalx():
 
 @respx.mock
 def test_fetch_speakers_from_pretalx():
-    url = "https://pretalx.com/api/events/ep2025/speakers?questions=all"
+    url = "https://pretalx.com/api/events/europython-2025/speakers/?questions=all"
     data = speaker_pages_generator(url)
     respx.get(url).mock(return_value=next(data))
     respx.get(url + "&page=2").mock(return_value=next(data))
 
     submissions = pretalx.fetch_pretalx_data(
-        "ep2025",
+        "europython-2025",
         PretalxData.PretalxResources.speakers,
     )
 
@@ -101,12 +101,12 @@ def test_fetch_speakers_from_pretalx():
 @respx.mock
 @pytest.mark.django_db
 def test_download_latest_submissions():
-    url = "https://pretalx.com/api/events/ep2025/submissions?questions=all"
+    url = "https://pretalx.com/api/events/europython-2025/submissions/?questions=all"
     data = submissions_pages_generator(url)
     respx.get(url).mock(return_value=next(data))
     respx.get(url + "&page=2").mock(return_value=next(data))
 
-    pretalx.download_latest_submissions("ep2025")
+    pretalx.download_latest_submissions("europython-2025")
 
     pd = PretalxData.objects.get(resource=PretalxData.PretalxResources.submissions)
     assert pd.resource == "submissions"
@@ -119,12 +119,12 @@ def test_download_latest_submissions():
 @respx.mock
 @pytest.mark.django_db
 def test_download_latest_speakers():
-    url = "https://pretalx.com/api/events/ep2025/speakers?questions=all"
+    url = "https://pretalx.com/api/events/europython-2025/speakers/?questions=all"
     data = speaker_pages_generator(url)
     respx.get(url).mock(return_value=next(data))
     respx.get(url + "&page=2").mock(return_value=next(data))
 
-    pretalx.download_latest_speakers("ep2025")
+    pretalx.download_latest_speakers("europython-2025")
 
     pd = PretalxData.objects.get(resource=PretalxData.PretalxResources.speakers)
     assert pd.resource == "speakers"
