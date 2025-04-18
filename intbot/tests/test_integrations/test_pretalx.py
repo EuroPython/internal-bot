@@ -1,41 +1,77 @@
-import respx
 import pytest
+import respx
 from core.integrations import pretalx
 from core.models import PretalxData
 from httpx import Response
 
 
-@respx.mock
-def test_fetch_submissions_from_pretalx():
-    endpoint = pretalx.RESOURCES[PretalxData.PretalxEndpoints.submissions]
-    url = pretalx.base_url + endpoint
-    respx.get(url).mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"hello": "world"},
-                ],
-                "next": f"{url}&page=2",
-            },
-        )
-    )
-    respx.get(url + "&page=2").mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"foo": "bar"},
-                ],
-                # It's important to make it last page in tests.
-                # Otherwise it will be infinite loop :)
-                "next": None,
-            },
-        )
+def submissions_pages_generator(url):
+    """
+    Generator to simulate pagination.
+
+    Extracted to a generator because we use it in multiple places
+    """
+    yield Response(
+        200,
+        json={
+            "results": [
+                {"hello": "world"},
+            ],
+            "next": f"{url}&page=2",
+        },
     )
 
+    yield Response(
+        200,
+        json={
+            "results": [
+                {"foo": "bar"},
+            ],
+            # It's important to make it last page in tests.
+            # Otherwise it will be infinite loop :)
+            "next": None,
+        },
+    )
+
+def speaker_pages_generator(url):
+    """
+    Generator to simulate pagination.
+
+    Extracted to a generator because we use it in multiple places
+    """
+    yield Response(
+        200,
+        json={
+            "results": [
+                {"hello": "world"},
+            ],
+            "next": f"{url}&page=2",
+        },
+    )
+
+    yield Response(
+        200,
+        json={
+            "results": [
+                {"foo": "bar"},
+            ],
+            # It's important to make it last page in tests.
+            # Otherwise it will be infinite loop :)
+            "next": None,
+        },
+    )
+
+
+@respx.mock
+def test_fetch_submissions_from_pretalx():
+    url = "https://pretalx.com/api/events/ep2025/submissions?questions=all"
+    data = submissions_pages_generator(url)
+    respx.get(url).mock(return_value=next(data))
+    respx.get(url + "&page=2").mock(return_value=next(data))
+
     submissions = pretalx.fetch_pretalx_data(
-        PretalxData.PretalxEndpoints.submissions,
+        "ep2025",
+        PretalxData.PretalxResources.submissions,
     )
 
     assert submissions == [
@@ -46,35 +82,14 @@ def test_fetch_submissions_from_pretalx():
 
 @respx.mock
 def test_fetch_speakers_from_pretalx():
-    endpoint = pretalx.RESOURCES[PretalxData.PretalxEndpoints.speakers]
-    url = pretalx.base_url + endpoint
-    respx.get(url).mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"hello": "world"},
-                ],
-                "next": f"{url}&page=2",
-            },
-        )
-    )
-    respx.get(url + "&page=2").mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"foo": "bar"},
-                ],
-                # It's important to make it last page in tests.
-                # Otherwise it will be infinite loop :)
-                "next": None,
-            },
-        )
-    )
+    url = "https://pretalx.com/api/events/ep2025/speakers?questions=all"
+    data = speaker_pages_generator(url)
+    respx.get(url).mock(return_value=next(data))
+    respx.get(url + "&page=2").mock(return_value=next(data))
 
     submissions = pretalx.fetch_pretalx_data(
-        PretalxData.PretalxEndpoints.speakers,
+        "ep2025",
+        PretalxData.PretalxResources.speakers,
     )
 
     assert submissions == [
@@ -86,80 +101,34 @@ def test_fetch_speakers_from_pretalx():
 @respx.mock
 @pytest.mark.django_db
 def test_download_latest_submissions():
-    endpoint = pretalx.RESOURCES[PretalxData.PretalxEndpoints.submissions]
-    url = pretalx.base_url + endpoint
-    respx.get(url).mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"hello": "world"},
-                ],
-                "next": f"{url}&page=2",
-            },
-        )
-    )
-    respx.get(url + "&page=2").mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"foo": "bar"},
-                ],
-                # It's important to make it last page in tests.
-                # Otherwise it will be infinite loop :)
-                "next": None,
-            },
-        )
-    )
+    url = "https://pretalx.com/api/events/ep2025/submissions?questions=all"
+    data = submissions_pages_generator(url)
+    respx.get(url).mock(return_value=next(data))
+    respx.get(url + "&page=2").mock(return_value=next(data))
 
-    pretalx.download_latest_submissions()
+    pretalx.download_latest_submissions("ep2025")
 
-    pd = PretalxData.objects.get(endpoint=PretalxData.PretalxEndpoints.submissions)
-
-    assert pd.endpoint == "submissions"
+    pd = PretalxData.objects.get(resource=PretalxData.PretalxResources.submissions)
+    assert pd.resource == "submissions"
     assert pd.content == [
         {"hello": "world"},
         {"foo": "bar"},
     ]
+
 
 @respx.mock
 @pytest.mark.django_db
 def test_download_latest_speakers():
-    endpoint = pretalx.RESOURCES[PretalxData.PretalxEndpoints.speakers]
-    url = pretalx.base_url + endpoint
-    respx.get(url).mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"hello": "world"},
-                ],
-                "next": f"{url}&page=2",
-            },
-        )
-    )
-    respx.get(url + "&page=2").mock(
-        return_value=Response(
-            200,
-            json={
-                "results": [
-                    {"foo": "bar"},
-                ],
-                # It's important to make it last page in tests.
-                # Otherwise it will be infinite loop :)
-                "next": None,
-            },
-        )
-    )
+    url = "https://pretalx.com/api/events/ep2025/speakers?questions=all"
+    data = speaker_pages_generator(url)
+    respx.get(url).mock(return_value=next(data))
+    respx.get(url + "&page=2").mock(return_value=next(data))
 
-    pretalx.download_latest_speakers()
+    pretalx.download_latest_speakers("ep2025")
 
-    pd = PretalxData.objects.get(endpoint=PretalxData.PretalxEndpoints.speakers)
-
-    assert pd.endpoint == "speakers"
+    pd = PretalxData.objects.get(resource=PretalxData.PretalxResources.speakers)
+    assert pd.resource == "speakers"
     assert pd.content == [
         {"hello": "world"},
         {"foo": "bar"},
     ]
-

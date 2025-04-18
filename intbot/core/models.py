@@ -92,15 +92,15 @@ class PretalxData(models.Model):
     "business" tables, like "Proposal" or "Speaker".
     """
 
-    class PretalxEndpoints(models.TextChoices):
+    class PretalxResources(models.TextChoices):
         submissions = "submissions", "Submissions"
         speakers = "speakers", "Speakers"
         schedule = "schedule", "Schedule"
 
     uuid = models.UUIDField(default=uuid.uuid4)
-    endpoint = models.CharField(
+    resource= models.CharField(
         max_length=255,
-        choices=PretalxEndpoints.choices,
+        choices=PretalxResources.choices,
     )
     content = models.JSONField()
 
