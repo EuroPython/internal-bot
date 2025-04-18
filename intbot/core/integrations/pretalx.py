@@ -44,7 +44,7 @@ def fetch_pretalx_data(
     url = f"{base_url}{endpoint}"
 
     # Pretalx paginates the output, so we will need to do multiple requests and
-    # then merge mutliple pages to one big dictionary
+    # then merge multiple pages to one big dictionary
     results = []
     data = {"next": url}
     page = 0
