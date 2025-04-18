@@ -56,7 +56,6 @@ def fetch_pretalx_data(
         response = httpx.get(url, headers=headers)
 
         if response.status_code != 200:
-            breakpoint()
             raise Exception(f"Error {response.status_code}: {response.text}")
 
         logger.info("Fetching data from %s, page %s", url, page)
