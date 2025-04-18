@@ -98,7 +98,7 @@ class PretalxData(models.Model):
         schedule = "schedule", "Schedule"
 
     uuid = models.UUIDField(default=uuid.uuid4)
-    resource= models.CharField(
+    resource = models.CharField(
         max_length=255,
         choices=PretalxResources.choices,
     )

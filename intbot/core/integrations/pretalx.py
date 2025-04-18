@@ -31,7 +31,9 @@ def get_event_url(event):
     return f"https://pretalx.com/api/events/{event}/"
 
 
-def fetch_pretalx_data(event: str, resource: PretalxData.PretalxResources) -> list[JsonType]:
+def fetch_pretalx_data(
+    event: str, resource: PretalxData.PretalxResources
+) -> list[JsonType]:
     headers = {
         "Authorization": f"Token {settings.PRETALX_API_TOKEN}",
         "Content-Type": "application/json",

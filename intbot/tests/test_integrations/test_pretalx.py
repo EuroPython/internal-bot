@@ -33,6 +33,7 @@ def submissions_pages_generator(url):
         },
     )
 
+
 def speaker_pages_generator(url):
     """
     Generator to simulate pagination.
