@@ -1,18 +1,22 @@
+MAKE_APP="docker compose run app make"
 
 echo:
 	"Dummy target, to not run something accidentally"
 
 prod/migrate:
-	docker compose run app make in-container/migrate
+	$(MAKE_APP) in-container/migrate
 
 prod/shell:
-	docker compose run app make in-container/shell
+	$(MAKE_APP) in-container/shell
 
 prod/db_shell:
-	docker compose run app make in-container/db_shell
+	$(MAKE_APP) in-container/db_shell
 
 prod/manage:
-	docker compose run app make in-container/manage ARG=$(ARG)
+	$(MAKE_APP) in-container/manage ARG=$(ARG)
+
+prod/cron/pretalx:
+	$(MAKE_APP) in-container/manage ARG="download_pretalx_data --event=europython-2025"
 
 logs:
 	docker compose logs -f
