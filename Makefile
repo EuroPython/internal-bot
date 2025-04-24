@@ -157,3 +157,4 @@ deploy/provision:
 deploy/app:
 	@echo "Deploying version $(V) to a remote server"
 	$(DEPLOY_CMD) playbooks/03_app.yml --extra-vars "app_version=$(V)"
+	$(DEPLOY_CMD) playbooks/04_cron.yml
