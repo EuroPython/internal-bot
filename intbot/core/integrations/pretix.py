@@ -15,8 +15,6 @@ PRETALX_EVENTS = [
 ]
 
 ENDPOINTS = {
-    # Questions need to be passed to include answers in the same endpoint,
-    # saving us later time with joining the answers.
     PretixData.PretixResources.orders: "orders/",
     PretixData.PretixResources.products: "items/",
     PretixData.PretixResources.vouchers: "vouchers/",
@@ -46,7 +44,7 @@ def fetch_pretix_data(
     endpoint = ENDPOINTS[resource]
     url = f"{base_url}{endpoint}"
 
-    # Pretalx paginates the output, so we will need to do multiple requests and
+    # Pretix paginates the output, so we will need to do multiple requests and
     # then merge multiple pages to one big dictionary
     results = []
     page = 0
