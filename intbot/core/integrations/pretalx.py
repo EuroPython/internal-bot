@@ -25,7 +25,7 @@ ENDPOINTS = {
 JsonType = dict[str, Any]
 
 
-def get_event_url(event):
+def get_event_url(event: str) -> str:
     assert event in PRETALX_EVENTS
 
     return f"https://pretalx.com/api/events/{event}/"
