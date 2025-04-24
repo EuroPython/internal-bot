@@ -2,7 +2,7 @@
 Sanity checks (mostly) if the admin resources are available
 """
 
-from core.models import DiscordMessage, PretalxData, Webhook
+from core.models import DiscordMessage, PretalxData, PretixData, Webhook
 
 
 def test_admin_for_webhooks_sanity_check(admin_client):
@@ -34,33 +34,69 @@ def test_admin_for_discordmessages_sanity_check(admin_client):
     assert dm.channel_name.encode() in response.content
 
 
-def test_admin_list_for_pretalx_data(admin_client):
-    """Simple sanity check if the page loads correctly"""
-    url = "/admin/core/pretalxdata/"
-    pd = PretalxData.objects.create(
-        resource=PretalxData.PretalxResources.speakers,
-        content={},
-    )
-    assert pd.uuid
+class TestPretalxDataAdmin:
+    """This class exists only for namespacing purposes"""
 
-    response = admin_client.get(url)
+    def test_admin_list_for_pretalx_data(self, admin_client):
+        """Simple sanity check if the page loads correctly"""
+        url = "/admin/core/pretalxdata/"
+        pd = PretalxData.objects.create(
+            resource=PretalxData.PretalxResources.speakers,
+            content={},
+        )
+        assert pd.uuid
 
-    assert response.status_code == 200
-    assert str(pd.uuid).encode() in response.content
-    assert pd.get_resource_display().encode() in response.content
+        response = admin_client.get(url)
+
+        assert response.status_code == 200
+        assert str(pd.uuid).encode() in response.content
+        assert pd.get_resource_display().encode() in response.content
+
+    def test_admin_change_for_pretalx_data(self, admin_client):
+        """Simple sanity check if the page loads correctly"""
+        url = "/admin/core/pretalxdata/"
+        pd = PretalxData.objects.create(
+            resource=PretalxData.PretalxResources.speakers,
+            content={},
+        )
+        assert pd.uuid
+
+        response = admin_client.get(f"{url}{pd.pk}/change/")
+
+        assert response.status_code == 200
+        assert str(pd.uuid).encode() in response.content
+        assert pd.get_resource_display().encode() in response.content
 
 
-def test_admin_change_for_pretalx_data(admin_client):
-    """Simple sanity check if the page loads correctly"""
-    url = "/admin/core/pretalxdata/"
-    pd = PretalxData.objects.create(
-        resource=PretalxData.PretalxResources.speakers,
-        content={},
-    )
-    assert pd.uuid
+class TestPretixDataAdmin:
+    """This class exists only for namespacing purposes"""
 
-    response = admin_client.get(f"{url}{pd.pk}/change/")
+    def test_admin_list_for_pretix_data(self, admin_client):
+        """Simple sanity check if the page loads correctly"""
+        url = "/admin/core/pretixdata/"
+        pd = PretixData.objects.create(
+            resource=PretixData.PretixResources.orders,
+            content={},
+        )
+        assert pd.uuid
 
-    assert response.status_code == 200
-    assert str(pd.uuid).encode() in response.content
-    assert pd.get_resource_display().encode() in response.content
+        response = admin_client.get(url)
+
+        assert response.status_code == 200
+        assert str(pd.uuid).encode() in response.content
+        assert pd.get_resource_display().encode() in response.content
+
+    def test_admin_change_for_pretix_data(self, admin_client):
+        """Simple sanity check if the page loads correctly"""
+        url = "/admin/core/pretixdata/"
+        pd = PretixData.objects.create(
+            resource=PretixData.PretixResources.orders,
+            content={},
+        )
+        assert pd.uuid
+
+        response = admin_client.get(f"{url}{pd.pk}/change/")
+
+        assert response.status_code == 200
+        assert str(pd.uuid).encode() in response.content
+        assert pd.get_resource_display().encode() in response.content
