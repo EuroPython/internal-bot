@@ -87,9 +87,7 @@ class PretalxData(models.Model):
     """
     Table to store raw data download from pretalx for later parsing.
 
-    We first download data from pretalx to this table, and then fire a separate
-    background task that pulls data from this table and stores in separate
-    "business" tables, like "Proposal" or "Speaker".
+    We first download data from pretix, then we later parse the latest jsons.
     """
 
     class PretalxResources(models.TextChoices):
@@ -101,6 +99,33 @@ class PretalxData(models.Model):
     resource = models.CharField(
         max_length=255,
         choices=PretalxResources.choices,
+    )
+    content = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    processed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.uuid}"
+
+
+class PretixData(models.Model):
+    """
+    Table to store raw data download from pretix for later parsing.
+
+    We first download data from pretix, then we later parse the latest jsons.
+    """
+
+    class PretixResources(models.TextChoices):
+        orders = "orders", "Orders"
+        products = "products", "Products"
+        vouchers = "vouchers", "Vouchers"
+
+    uuid = models.UUIDField(default=uuid.uuid4)
+    resource = models.CharField(
+        max_length=255,
+        choices=PretixResources.choices,
     )
     content = models.JSONField()
 
