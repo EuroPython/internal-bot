@@ -50,7 +50,30 @@ The bot's main goal is to make life easier for the conference teams by streamlin
   * Managed with `uv`. All Makefiles, Docker images, and related configs are set up to use `uv`.
 
 * **CI/CD**
-  * Built with GitHub Actions.
+  * Built with GitHub Actions
+  * Runs tests and linters on every push to pull requests
+  * Automatically deploys to production when code is merged to `main`
+
+## Documentation
+
+Check the `docs/` directory for additional information:
+
+* [Architecture Overview](docs/architecture.md) - Basic system design and integration workflow
+* [Deployment Guide](docs/deployment.md) - Server setup and deployment process
+
+## Project Structure
+
+This project follows a simple, focused organization:
+
+```
+deploy/    - Deployment configuration and Ansible playbooks
+docs/      - Documentation files
+intbot/    - Main application code
+ ├─ core/  - Core functionality (bot, integrations, endpoints)
+ └─ tests/ - Test suite
+```
+
+See the [Architecture Overview](docs/architecture.md) for more details.
 
 ## Local Development
 
@@ -71,13 +94,68 @@ $ pyenv install 3.12
 
 ## Contributing
 
-...
+### Setting Up Development Environment
+
+1. Clone the repository
+2. Install `uv` - all the dependencies and Makefile targets are using `uv`.
+3. Set up environment variables in `.env` file
+4. Run the database with `docker-compose up -d`
+5. Apply migrations with `make migrate`
+6. Run the development server with `make server`
+7. Run the bot with `make bot`
+8. Run the worker with `make worker`
+
+You can check the Django admin at http://localhost:4672/admin/ to see webhooks and tasks.
+
+### Adding a New Integration
+
+1. Create a module in `intbot/core/integrations/`
+2. Define Pydantic models to organize the data
+3. Add a webhook endpoint in `core/endpoints/webhooks.py`
+4. Add security checks (signature verification)
+5. Update `process_webhook` in `core/tasks.py`
+6. If it will send Discord messages, add routing logic in `channel_router.py`
+7. Add the new URL in `urls.py`
+
+### Testing
+
+The project uses pytest with Django:
+- Run all tests with `make test`
+- Run single tests with `make test/k K=your_keyword`
+- Run fast tests with `make test/fast`
+- Check test coverage with `make test/cov`
+
+When testing webhooks, make sure to test:
+- Security checks (signature verification)
+- Data parsing
+- Channel routing (if using Discord)
+- Message formatting (if using Discord)
+
+### Code Quality
+
+We use ruff and mypy to lint and format the project.
+Both of those are run on CI for every Pull Request.
+
+- Use type hints for all functions and classes
+- Run `make format` before committing
+- Run `make lint` and `make type-check` to check for issues
+- Follow the same error handling patterns as existing code
 
 ## Operations
 
-...
+TODO: Expand on this part :)
+
+### Monitoring
+
+- Currently not configured
+
+### Debugging
+
+- Logs can be viewed on the intbot_user with `make logs`
+- The Django admin interface is available at `/admin/`
 
 ## Deployment
 
-...
+Currently deployed to a separate VPS, using ansible (for both provisioning and deployment).
 
+See deployment doc for more details: [Deployment Guide](docs/deployment.md)
