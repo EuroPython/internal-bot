@@ -29,7 +29,7 @@ JsonType = dict[str, Any]
 def get_event_url(event):
     assert event in PRETALX_EVENTS
 
-    pretix_url = f"https://tickets.europython.eu"
+    pretix_url = "https://tickets.europython.eu"
     url = f"{pretix_url}/api/v1/organizers/europython/events/{event}/"
     return url
 
@@ -73,9 +73,29 @@ def fetch_pretix_data(
 def download_latest_orders(event: str) -> PretixData:
     data = fetch_pretix_data(event, PretixData.PretixResources.orders)
 
-    pretalx_data = PretixData.objects.create(
+    pretix_data = PretixData.objects.create(
         resource=PretixData.PretixResources.orders,
         content=data,
     )
 
-    return pretalx_data
+    return pretix_data
+
+def download_latest_products(event: str) -> PretixData:
+    data = fetch_pretix_data(event, PretixData.PretixResources.products)
+
+    pretix_data = PretixData.objects.create(
+        resource=PretixData.PretixResources.products,
+        content=data,
+    )
+
+    return pretix_data
+
+def download_latest_vouchers(event: str) -> PretixData:
+    data = fetch_pretix_data(event, PretixData.PretixResources.vouchers)
+
+    pretix_data = PretixData.objects.create(
+        resource=PretixData.PretixResources.vouchers,
+        content=data,
+    )
+
+    return pretix_data
