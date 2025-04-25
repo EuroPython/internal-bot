@@ -24,7 +24,7 @@ ENDPOINTS = {
 JsonType = dict[str, Any]
 
 
-def get_event_url(event):
+def get_event_url(event: str) -> str:
     assert event in PRETALX_EVENTS
 
     pretix_url = "https://tickets.europython.eu"
