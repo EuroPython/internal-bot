@@ -7,7 +7,7 @@ from httpx import Response
 
 @respx.mock
 @pytest.mark.django_db
-def test_download_pretix_data_command(capsys):
+def test_download_pretalx_data_command(capsys):
     for url in [
         "https://pretalx.com/api/events/europython-2025/submissions/?questions=all",
         "https://pretalx.com/api/events/europython-2025/speakers/?questions=all",
@@ -20,17 +20,16 @@ def test_download_pretix_data_command(capsys):
 
     # Minimal sanity checks
     stdout, stderr = capsys.readouterr()  # capture stdout / stderr
-    assert "Downloading latest products" in stdout
-    assert "Downloading latest vouchers" in stdout
-    assert "Downloading latest orders" in stdout
+    assert "Downloading latest speakers" in stdout
+    assert "Downloading latest submissions" in stdout
     assert (
         PretalxData.objects.get(
-            resource=PretalxData.PretalxResource.submissions
+            resource=PretalxData.PretalxResources.submissions
         ).content
         == []
     )
     assert (
-        PretalxData.objects.get(resource=PretalxData.PretalxResource.speakers).content
+        PretalxData.objects.get(resource=PretalxData.PretalxResources.speakers).content
         == []
     )
 
