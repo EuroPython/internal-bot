@@ -106,6 +106,9 @@ class PretalxData(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
     processed_at = models.DateTimeField(blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = "Pretalx Data"
+
     def __str__(self):
         return f"{self.uuid}"
 
@@ -132,6 +135,9 @@ class PretixData(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     processed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Pretix Data"
 
     def __str__(self):
         return f"{self.uuid}"

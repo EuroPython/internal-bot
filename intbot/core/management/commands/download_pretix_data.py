@@ -1,4 +1,4 @@
-from core.integrations.pretalx import (
+from core.integrations.pretix import (
     PRETIX_EVENTS,
     download_latest_orders,
     download_latest_products,
