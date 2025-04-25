@@ -28,8 +28,7 @@ def get_event_url(event: str) -> str:
     assert event in PRETALX_EVENTS
 
     pretix_url = "https://tickets.europython.eu"
-    url = f"{pretix_url}/api/v1/organizers/europython/events/{event}/"
-    return url
+    return f"{pretix_url}/api/v1/organizers/europython/events/{event}/"
 
 
 def fetch_pretix_data(
