@@ -7,7 +7,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-PRETALX_EVENTS = [
+PRETIX_EVENTS = [
     "2022",
     "ep2023",
     "ep2024",
@@ -25,7 +25,7 @@ JsonType = dict[str, Any]
 
 
 def get_event_url(event: str) -> str:
-    assert event in PRETALX_EVENTS
+    assert event in PRETIX_EVENTS
 
     pretix_url = "https://tickets.europython.eu"
     return f"{pretix_url}/api/v1/organizers/europython/events/{event}/"
