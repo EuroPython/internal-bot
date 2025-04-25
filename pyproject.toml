@@ -29,6 +29,7 @@ dependencies = [
     "polars>=1.27.1",
     "plotly[express]>=6.0.1",
     "kaleido==0.2.0",
+    "plotly-stubs>=0.0.5",
 ]
 
 [tool.pytest.ini_options]
