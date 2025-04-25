@@ -5,22 +5,39 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0005_add_pretalx_data_model'),
+        ("core", "0005_add_pretalx_data_model"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PretixData',
+            name="PretixData",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4)),
-                ('resource', models.CharField(choices=[('orders', 'Orders'), ('products', 'Products'), ('vouchers', 'Vouchers')], max_length=255)),
-                ('content', models.JSONField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('modified_at', models.DateTimeField(auto_now=True)),
-                ('processed_at', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4)),
+                (
+                    "resource",
+                    models.CharField(
+                        choices=[
+                            ("orders", "Orders"),
+                            ("products", "Products"),
+                            ("vouchers", "Vouchers"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                ("content", models.JSONField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("modified_at", models.DateTimeField(auto_now=True)),
+                ("processed_at", models.DateTimeField(blank=True, null=True)),
             ],
         ),
     ]

@@ -77,6 +77,7 @@ def download_latest_orders(event: str) -> PretixData:
 
     return pretix_data
 
+
 def download_latest_products(event: str) -> PretixData:
     data = fetch_pretix_data(event, PretixData.PretixResources.products)
 
@@ -86,6 +87,7 @@ def download_latest_products(event: str) -> PretixData:
     )
 
     return pretix_data
+
 
 def download_latest_vouchers(event: str) -> PretixData:
     data = fetch_pretix_data(event, PretixData.PretixResources.vouchers)

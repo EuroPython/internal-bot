@@ -62,6 +62,7 @@ def vouchers_pages_generator(url):
         },
     )
 
+
 def products_pages_generator(url):
     """
     Generator to simulate pagination.
@@ -108,6 +109,7 @@ def test_fetch_orders_from_pretix():
         {"foo": "bar"},
     ]
 
+
 @respx.mock
 def test_fetch_vouchers_from_pretix():
     url = "https://tickets.europython.eu/api/v1/organizers/europython/events/ep2025/vouchers/"
@@ -124,6 +126,7 @@ def test_fetch_vouchers_from_pretix():
         {"hello": "world"},
         {"foo": "bar"},
     ]
+
 
 @respx.mock
 def test_fetch_products_from_pretix():
@@ -160,6 +163,7 @@ def test_download_latest_orders():
         {"foo": "bar"},
     ]
 
+
 @respx.mock
 @pytest.mark.django_db
 def test_download_latest_products():
@@ -176,6 +180,7 @@ def test_download_latest_products():
         {"hello": "world"},
         {"foo": "bar"},
     ]
+
 
 @respx.mock
 @pytest.mark.django_db
