@@ -2,9 +2,16 @@
   hosts: intbot_app
 
   tasks:
-    - name: "Download pretalx data every hour"
+    - name: "Download pretalx data once a day"
       ansible.builtin.cron:
-        name: "Download pretalx data every hour"
+        name: "Download pretalx data once a day at 05:05am"
         minute: "5"
-        hour: "8"     # run once a day at 08:05 am
+        hour: "5"
         job: "make prod/cron/pretalx"
+
+    - name: "Download pretix data once a day"
+      ansible.builtin.cron:
+        name: "Download pretix data once a day at 06:05am"
+        minute: "5"
+        hour: "6"
+        job: "make prod/cron/pretix"

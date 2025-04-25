@@ -18,5 +18,9 @@ prod/manage:
 prod/cron/pretalx:
 	$(MAKE_APP) in-container/manage ARG="download_pretalx_data --event=europython-2025"
 
+
+prod/cron/pretix:
+	$(MAKE_APP) in-container/manage ARG="download_pretix_data --event=ep2025"
+
 logs:
 	docker compose logs -f

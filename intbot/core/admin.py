@@ -1,6 +1,6 @@
 import json
 
-from core.models import DiscordMessage, PretalxData, Webhook
+from core.models import DiscordMessage, PretalxData, PretixData, Webhook
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -93,6 +93,33 @@ class PretalxDataAdmin(admin.ModelAdmin):
     pretty_content.short_description = "Content"
 
 
+class PretixDataAdmin(admin.ModelAdmin):
+    list_display = [
+        "uuid",
+        "resource",
+        "created_at",
+        "modified_at",
+    ]
+    list_filter = [
+        "created_at",
+        "resource",
+    ]
+    readonly_fields = fields = [
+        "uuid",
+        "resource",
+        "pretty_content",
+        "created_at",
+        "modified_at",
+        "processed_at",
+    ]
+
+    def pretty_content(self, obj: PretixData):
+        return format_html("<pre>{}</pre>", json.dumps(obj.content, indent=4))
+
+    pretty_content.short_description = "Content"
+
+
 admin.site.register(Webhook, WebhookAdmin)
 admin.site.register(DiscordMessage, DiscordMessageAdmin)
 admin.site.register(PretalxData, PretalxDataAdmin)
+admin.site.register(PretixData, PretixDataAdmin)
