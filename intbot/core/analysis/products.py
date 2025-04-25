@@ -1,5 +1,5 @@
 """
-Prase Products from PretixData for further joins and analysis in other places.
+Parse Products from PretixData for further joins and analysis in other places.
 """
 
 from decimal import Decimal
@@ -11,7 +11,7 @@ from pydantic import BaseModel, model_validator
 
 
 class LocalisedFieldsMixin:
-    # Marking as ClassVar here is importnat. It doens't work without it :)
+    # Marking as ClassVar here is important. It doens't work without it :)
     _localised_fields: ClassVar[Iterable[str]] = ()
 
     @model_validator(mode="before")
@@ -65,6 +65,11 @@ def parse_latest_products_to_objects(pretix_data: PretixData) -> list[Product]:
 
 
 def flat_product_data(products: list[Product]) -> pl.DataFrame:
+    """
+    Returns a polars data frame with flat description of available Products.
+    Products hold nested `ProductVariation`s; flatten them so every variation
+    (or base product) becomes one row in a DataFrame.
+    """
     rows = []
     for p in products:
         if p.variations:
@@ -104,7 +109,7 @@ def flat_product_data(products: list[Product]) -> pl.DataFrame:
     return pl.DataFrame(rows)
 
 
-def latest_flat_product_data():
+def latest_flat_product_data() -> pl.DataFrame:
     """
     Thin wrapper on getting latest information from the database, and
     converting into a polars data frame
