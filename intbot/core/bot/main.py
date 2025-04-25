@@ -1,4 +1,6 @@
 import discord
+from asgiref.sync import sync_to_async
+from core.analysis.products import latest_flat_product_data
 from core.models import DiscordMessage, InboxItem
 from discord.ext import commands, tasks
 from django.conf import settings
@@ -197,6 +199,25 @@ async def until(ctx):
     delta = settings.CONFERENCE_START - timezone.now()
 
     await ctx.send(f"{delta.days} days left until the conference")
+
+
+@bot.command()
+@commands.has_role("EP2025")
+async def products(ctx):
+    """
+    Returns pretix Products but only if called by a EP2025 volunteer on a test channel.
+
+    This is an example of implementation of a command that has some basic
+    access control (in this case works only on certain channels).
+    """
+
+    if ctx.channel.id != settings.DISCORD_TEST_CHANNEL_ID:
+        await ctx.send("This command only works on certain channels")
+        return
+
+    data = await sync_to_async(latest_flat_product_data)()
+
+    await ctx.send(f"```{str(data)}```")
 
 
 def run_bot():
