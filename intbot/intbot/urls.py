@@ -4,7 +4,7 @@ from core.endpoints.webhooks import (
     internal_webhook_endpoint,
     zammad_webhook_endpoint,
 )
-from core.views import days_until, products
+from core.views import days_until, products, submissions
 from django.contrib import admin
 from django.urls import path
 
@@ -18,4 +18,5 @@ urlpatterns = [
     # Public Pages
     path("days-until/", days_until),
     path("products/", products),
+    path("submissions/", submissions),
 ]

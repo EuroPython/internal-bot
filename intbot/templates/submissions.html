@@ -1,0 +1,40 @@
+
+<html>
+    <body>
+        <style type="text/css">
+body { background-color: #ffe; color: #151f38; font-family: sans-serif;}
+h1 { font-size: 3em; text-align: center; margin-top: 3em; }
+thead { background: #aaa; }
+table { font-family: monospace; width: 100%}
+table td { padding: .5em 1em; }
+table tr:nth-child(2n) td { background: #eee; }
+table tr:hover td { background: #fee; }
+        </style>
+        <div style="margin: 3em">
+
+            <h1>Submissions</h1>
+
+            <div id="piechart">
+                {{ piechart }}
+            </div>
+            <p style="text-align: center">This is not particularly useful now, but it's here as a proof of concept :)</p>
+
+            <table>
+                <thead>
+                    {% for column in columns %}
+                    <td>{{ column }}</td>
+                    {% endfor %}
+                </thead>
+
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </body>
+</html>

@@ -1,6 +1,13 @@
+import io
+
 import discord
 from asgiref.sync import sync_to_async
 from core.analysis.products import latest_flat_product_data
+from core.analysis.submissions import (
+    group_submissions_by_state,
+    latest_flat_submissions_data,
+    piechart_submissions_by_state,
+)
 from core.models import DiscordMessage, InboxItem
 from discord.ext import commands, tasks
 from django.conf import settings
@@ -218,6 +225,26 @@ async def products(ctx):
     data = await sync_to_async(latest_flat_product_data)()
 
     await ctx.send(f"```{str(data)}```")
+
+
+@bot.command()
+async def submissions_status(ctx):
+    df = await sync_to_async(latest_flat_submissions_data)()
+    by_state = group_submissions_by_state(df)
+
+    await ctx.send(f"```{str(by_state)}```")
+
+
+@bot.command()
+async def submissions_status_pie_chart(ctx):
+    df = await sync_to_async(latest_flat_submissions_data)()
+    by_state = group_submissions_by_state(df)
+    piechart = piechart_submissions_by_state(by_state)
+
+    png_bytes = piechart.to_image(format="png")
+    file = discord.File(io.BytesIO(png_bytes), filename="submissions_by_state.png")
+
+    await ctx.send(file=file)
 
 
 def run_bot():

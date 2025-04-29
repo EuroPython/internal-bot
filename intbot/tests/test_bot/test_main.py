@@ -1,10 +1,22 @@
 from unittest.mock import AsyncMock, patch
 
 import discord
+import polars as pl
 import pytest
 from asgiref.sync import sync_to_async
-from core.bot.main import close, ping, poll_database, qlen, source, until, version, wiki
-from core.models import DiscordMessage
+from core.bot.main import (
+    close,
+    ping,
+    poll_database,
+    qlen,
+    source,
+    submissions_status,
+    submissions_status_pie_chart,
+    until,
+    version,
+    wiki,
+)
+from core.models import DiscordMessage, PretalxData
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -200,3 +212,134 @@ async def test_until():
     await until(ctx)
 
     ctx.send.assert_called_once_with("100 days left until the conference")
+
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_submissions_status():
+    ctx = AsyncMock()
+    await PretalxData.objects.acreate(
+        resource=PretalxData.PretalxResources.submissions,
+        content=[
+            {
+                "code": "ABCDEF",
+                "slot": None,
+                "tags": [],
+                "image": None,
+                "notes": "",
+                "state": "submitted",
+                "title": "Title",
+                "track": {"en": "Machine Learning, NLP and CV"},
+                "created": "2025-01-14T01:24:36.328974+01:00",
+                "answers": [],
+                "tag_ids": [],
+                "abstract": "Abstract",
+                "duration": 30,
+                "speakers": [],
+                "submission_type": "Talk",
+            },
+            {
+                "code": "DEFGHI",
+                "slot": None,
+                "tags": [],
+                "image": None,
+                "notes": "",
+                "state": "submitted",
+                "title": "Title",
+                "track": {"en": "Machine Learning, NLP and CV"},
+                "created": "2025-01-14T01:24:36.328974+01:00",
+                "answers": [],
+                "tag_ids": [],
+                "abstract": "Abstract",
+                "duration": 30,
+                "speakers": [],
+                "submission_type": "Talk",
+            },
+            {
+                "code": "XYZF12",
+                "slot": None,
+                "tags": [],
+                "image": None,
+                "notes": "Notes",
+                "state": "withdrawn",
+                "title": "Title 2",
+                "track": {"en": "Track 2"},
+                "answers": [],
+                "created": "2025-01-16T11:44:26.328974+01:00",
+                "tag_ids": [],
+                "abstract": "Minimal Abstract",
+                "duration": 45,
+                "speakers": [],
+                "submission_type": {"en": "Talk (long session)"},
+            },
+        ],
+    )
+    # Sorted from bigger to smaller
+    expected = pl.DataFrame({"state": ["submitted", "withdrawn"], "len": [2, 1]})
+    expected = expected.cast({"len": pl.UInt32})  # need cast to make it consistent
+
+    await submissions_status(ctx)
+
+    ctx.send.assert_called_once_with(f"```{str(expected)}```")
+
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_submissions_status_pie_chart():
+    ctx = AsyncMock()
+    await PretalxData.objects.acreate(
+        resource=PretalxData.PretalxResources.submissions,
+        content=[
+            {
+                "code": "ABCDEF",
+                "slot": None,
+                "tags": [],
+                "image": None,
+                "notes": "",
+                "state": "submitted",
+                "title": "Title",
+                "track": {"en": "Machine Learning, NLP and CV"},
+                "created": "2025-01-14T01:24:36.328974+01:00",
+                "answers": [],
+                "tag_ids": [],
+                "abstract": "Abstract",
+                "duration": 30,
+                "speakers": [],
+                "submission_type": "Talk",
+            },
+            {
+                "code": "XYZF12",
+                "slot": None,
+                "tags": [],
+                "image": None,
+                "notes": "Notes",
+                "state": "withdrawn",
+                "title": "Title 2",
+                "track": {"en": "Track 2"},
+                "answers": [],
+                "created": "2025-01-16T11:44:26.328974+01:00",
+                "tag_ids": [],
+                "abstract": "Minimal Abstract",
+                "duration": 45,
+                "speakers": [],
+                "submission_type": {"en": "Talk (long session)"},
+            },
+        ],
+    )
+
+    class FakeFig:
+        def to_image(self, *, format):
+            return b"PNG GOES HERE"
+
+    expected = FakeFig()
+
+    with patch("core.bot.main.piechart_submissions_by_state", return_value=expected):
+        await submissions_status_pie_chart(ctx)
+
+    ctx.send.assert_called_once()
+    sent_file = ctx.send.call_args.kwargs["file"]
+
+    assert isinstance(sent_file, discord.File)
+    assert sent_file.filename == "submissions_by_state.png"
+    sent_file.fp.seek(0)
+    assert sent_file.fp.read() == b"PNG GOES HERE"
