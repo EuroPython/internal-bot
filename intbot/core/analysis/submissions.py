@@ -57,18 +57,16 @@ class Submission(LocalisedFieldsMixin, BaseModel):
             # submission questions.
             is_submission_question = answer["submission"] is not None
 
-            if is_submission_question and cls.is_answer_to(answer, cls.Questions.level):
+            if is_submission_question and cls.matches_question(answer, cls.Questions.level):
                 values["level"] = answer["answer"]
 
-            if is_submission_question and cls.is_answer_to(
-                answer, cls.Questions.outline
-            ):
+            if is_submission_question and cls.matches_question(answer, cls.Questions.outline):
                 values["outline"] = answer["answer"]
 
         return values
 
     @staticmethod
-    def is_answer_to(answer: dict, question: str) -> bool:
+    def matches_question(answer: dict, question: str) -> bool:
         """
         Returns True if the answer corresponds to the question passed as the second
         argument.
@@ -76,7 +74,10 @@ class Submission(LocalisedFieldsMixin, BaseModel):
         Answers come in a nested structure that includes localised question
         text. This function is a small wrapper to encapsulate that behaviour.
         """
-        return answer.get("question", {}).get("question", {}).get("en") == question
+        # Explicit if to make it clear it's a comparison
+        if question == answer.get("question", {}).get("question", {}).get("en"):
+            return True
+        return False
 
 
 def get_latest_submissions_data() -> PretalxData:

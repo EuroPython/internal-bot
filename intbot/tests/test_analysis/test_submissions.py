@@ -86,7 +86,7 @@ def test_submission_is_answer_to():
     ]
 
     if answers[0]["question"]["question"]["en"] == "Outline":
-        assert Submission.is_answer_to(answers[0], "Outline")
+        assert Submission.matches_question(answers[0], "Outline")
 
 
 @pytest.mark.django_db
