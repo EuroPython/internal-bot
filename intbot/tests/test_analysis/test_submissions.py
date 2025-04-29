@@ -71,6 +71,24 @@ def _create_pretalx_data():
     )
 
 
+def test_submission_is_answer_to():
+    answers = [
+        {
+            "id": 123,
+            "answer": "1. Introduction - 5 minutes",
+            "person": None,
+            "review": None,
+            "options": [],
+            "question": {"id": 1111, "question": {"en": "Outline"}},
+            "submission": "ABCDE",
+            "answer_file": None,
+        },
+    ]
+
+    if answers[0]["question"]["question"]["en"] == "Outline":
+        assert Submission.is_answer_to(answers[0], "Outline")
+
+
 @pytest.mark.django_db
 def test_latest_flat_product_data():
     """
@@ -134,10 +152,12 @@ def test_group_submissions_by_state():
     database to returning a polars dataframe
     """
     _create_pretalx_data()
-    expected = pl.DataFrame({
-        "state": ["submitted", "withdrawn"],
-        "len": [2, 1],
-    })
+    expected = pl.DataFrame(
+        {
+            "state": ["submitted", "withdrawn"],
+            "len": [2, 1],
+        }
+    )
     expected = expected.cast({"len": pl.UInt32})  # need cast to make it consistent
 
     df = group_submissions_by_state(latest_flat_submissions_data())

@@ -49,15 +49,18 @@ class Submission(LocalisedFieldsMixin, BaseModel):
     def extract_answers(cls, values):
         # Some things are available as answers to questions and we can extract
         # them here
-        # But using .get since this should be optional for creating objects
-        # manually
+        # Using .get since this should be optional when creating Submission
+        # objects manually
         for answer in values.get("answers", ""):
-            if answer["submission"] is not None and cls.question_is(
-                answer, cls.Questions.level
-            ):
+            # Submission in the API will include answers to questions asked on
+            # submission and on the speaker. Let's explicitly filter out only
+            # submission questions.
+            is_submission_question = answer["submission"] is not None
+
+            if is_submission_question and cls.is_answer_to(answer, cls.Questions.level):
                 values["level"] = answer["answer"]
 
-            if answer["submission"] is not None and cls.question_is(
+            if is_submission_question and cls.is_answer_to(
                 answer, cls.Questions.outline
             ):
                 values["outline"] = answer["answer"]
@@ -65,13 +68,21 @@ class Submission(LocalisedFieldsMixin, BaseModel):
         return values
 
     @staticmethod
-    def question_is(answer: dict, question: str) -> bool:
+    def is_answer_to(answer: dict, question: str) -> bool:
+        """
+        Returns True if the answer corresponds to the question passed as the second
+        argument.
+
+        Answers come in a nested structure that includes localised question
+        text. This function is a small wrapper to encapsulate that behaviour.
+        """
         return answer.get("question", {}).get("question", {}).get("en") == question
 
 
 def get_latest_submissions_data() -> PretalxData:
-    qs = PretalxData.objects.filter(resource=PretalxData.PretalxResources.submissions)
-    return qs.latest("created_at")
+    return PretalxData.objects.filter(
+        resource=PretalxData.PretalxResources.submissions
+    ).latest("created_at")
 
 
 def parse_latest_submissions_to_objects(pretalx_data: PretalxData) -> list[Submission]:
@@ -102,9 +113,7 @@ def latest_flat_submissions_data() -> pl.DataFrame:
 
 
 def group_submissions_by_state(submissions: pl.DataFrame) -> pl.DataFrame:
-    by_state = submissions.group_by("state").len().sort("len", descending=True)
-
-    return by_state
+    return submissions.group_by("state").len().sort("len", descending=True)
 
 
 def piechart_submissions_by_state(submissions_by_state: pl.DataFrame):

@@ -337,7 +337,7 @@ async def test_submissions_status_pie_chart():
         await submissions_status_pie_chart(ctx)
 
     ctx.send.assert_called_once()
-    sent_file = ctx.send.call_args.kwargs['file']
+    sent_file = ctx.send.call_args.kwargs["file"]
 
     assert isinstance(sent_file, discord.File)
     assert sent_file.filename == "submissions_by_state.png"
