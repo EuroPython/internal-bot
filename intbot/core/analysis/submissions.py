@@ -74,10 +74,7 @@ class Submission(LocalisedFieldsMixin, BaseModel):
         Answers come in a nested structure that includes localised question
         text. This function is a small wrapper to encapsulate that behaviour.
         """
-        # Explicit if to make it clear it's a comparison
-        if question == answer.get("question", {}).get("question", {}).get("en"):
-            return True
-        return False
+        return question == answer.get("question", {}).get("question", {}).get("en")
 
 
 def get_latest_submissions_data() -> PretalxData:
