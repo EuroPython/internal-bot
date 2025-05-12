@@ -64,7 +64,7 @@ def parse_latest_products_to_objects(pretix_data: PretixData) -> list[Product]:
     return products
 
 
-def flat_product_data(products: list[Product]) -> pl.DataFrame:
+def flat_products(products: list[Product]) -> pl.DataFrame:
     """
     Returns a polars data frame with flat description of available Products.
     Products hold nested `ProductVariation`s; flatten them so every variation
@@ -106,7 +106,24 @@ def flat_product_data(products: list[Product]) -> pl.DataFrame:
                 )
             )
 
-    return pl.DataFrame(rows)
+    return rows
+
+
+def flat_product_data(products: list[Product]) -> pl.DataFrame:
+    return pl.DataFrame(flat_products(products))
+
+
+def get_product_lookup(
+    pretix_data: PretixData,
+) -> dict[tuple[str, str], FlatProductDescription]:
+    """
+    Returns a dictionary that maps product name/variant to a
+    FlatProductDescription instance.
+    Useful when parsing product name to a product instance
+    """
+    products = flat_products(parse_latest_products_to_objects(pretix_data))
+
+    return {(product.product_id, product.variation_id): product for product in products}
 
 
 def latest_flat_product_data() -> pl.DataFrame:

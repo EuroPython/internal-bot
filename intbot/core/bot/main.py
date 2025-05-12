@@ -2,6 +2,10 @@ import io
 
 import discord
 from asgiref.sync import sync_to_async
+from core.analysis.orders import (
+    group_tickets_by_product,
+    latest_flat_tickets_data,
+)
 from core.analysis.products import latest_flat_product_data
 from core.analysis.submissions import (
     group_submissions_by_state,
@@ -245,6 +249,14 @@ async def submissions_status_pie_chart(ctx):
     file = discord.File(io.BytesIO(png_bytes), filename="submissions_by_state.png")
 
     await ctx.send(file=file)
+
+
+@bot.command()
+async def tickets_by_type(ctx):
+    df = await sync_to_async(latest_flat_tickets_data)()
+    by_product = group_tickets_by_product(df)
+
+    await ctx.send(f"```{str(by_product)}```")
 
 
 def run_bot():
