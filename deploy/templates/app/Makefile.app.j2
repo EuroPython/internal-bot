@@ -7,7 +7,7 @@ prod/migrate:
 	$(MAKE_APP) in-container/migrate
 
 prod/shell:
-	$(MAKE_APP) in-container/shell
+	$(MAKE_APP) in-container/manage ARG="shell_plus"
 
 prod/db_shell:
 	$(MAKE_APP) in-container/db_shell
@@ -21,6 +21,9 @@ prod/cron/pretalx:
 
 prod/cron/pretix:
 	$(MAKE_APP) in-container/manage ARG="download_pretix_data --event=ep2025"
+
+prod/cron/standup:
+	$(MAKE_APP) in-container/manage ARG="send_scheduled_message --template=standup"
 
 logs:
 	docker compose logs -f

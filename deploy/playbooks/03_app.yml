@@ -45,16 +45,5 @@
     - name: Migrate on prod
       shell: "make prod/migrate"
 
-    - name: Configure scheduled message for standup
-      become: yes
-      cron:
-        name: "Monday standup message"
-        user: "{{ app_user }}"
-        minute: "0"
-        hour: "11"
-        weekday: "1"
-        job: "cd /home/{{ app_user }} && docker compose exec -T app make in-container/manage ARG='send_scheduled_message --type=standup'"
-        state: present
-
     - name: Restart everything and finish
       shell: "docker compose up -d"

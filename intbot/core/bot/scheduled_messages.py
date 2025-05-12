@@ -4,27 +4,23 @@ Factory functions for scheduled messages
 
 from typing import Dict, Callable
 
-from django.utils import timezone
-
 from core.models import DiscordMessage
 from core.bot.channel_router import Channels
+from core.bot.config import Roles
 
 
 def standup_message_factory() -> DiscordMessage:
     """Factory for weekly standup message."""
-    today = timezone.now()
-    week_number = today.isocalendar()[1]
-    
     content = (
-        f"## Monday Standup - Week {week_number}\n\n"
-        f"Good morning team! Please share:\n\n"
-        f"1. What you accomplished last week\n"
-        f"2. What you're planning for this week\n"
-        f"3. Any blockers or assistance needed"
+        f"## Happy Monday <@&{Roles.board_member_role_id}>!\n\n"
+        f"Let's keep everyone in the loop :)\n\n"
+        f"(1) What you worked on last week\n"
+        f"(2) What are you planning to work on this week\n"
+        f"(3) Are there any blockers or where could you use some help?"
     )
     
     # Using the test channel for now - replace with appropriate channel later
-    channel = Channels.test_channel
+    channel = Channels.standup_channel
     
     return DiscordMessage(
         channel_id=channel.channel_id,
