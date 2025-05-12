@@ -92,4 +92,3 @@
     - name: Display the public key
       debug:
         msg: "For private repositories, make sure to put this key as deploy key on github:  {{ deploy_key.content | b64decode }}"
-

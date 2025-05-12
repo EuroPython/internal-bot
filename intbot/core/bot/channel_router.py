@@ -77,6 +77,12 @@ class Channels:
         channel_name=settings.DISCORD_GRANTS_CHANNEL_NAME,
     )
 
+    # scheduled messages
+    standup_channel = DiscordChannel(
+        channel_id=settings.DISCORD_STANDUP_CHANNEL_ID,
+        channel_name=settings.DISCORD_STANDUP_CHANNEL_NAME,
+    )
+
 
 def discord_channel_router(wh: Webhook) -> DiscordChannel:
     if wh.source == "github":
