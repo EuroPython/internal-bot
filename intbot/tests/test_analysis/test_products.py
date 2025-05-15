@@ -54,11 +54,17 @@ def test_flat_product_data():
 
 
 @pytest.mark.django_db
-def test_latest_flat_product_data(products_pretix_data):
+def test_latest_flat_product_data(pretix_data):
     """
     Bigger integrated tests going through everything from getting data from the
     database to returning a polars dataframe
     """
+    PretixData.objects.create(
+        resource=PretixData.PretixResources.products,
+        content=pretix_data["products"],
+    )
+
+
     # NOTE: Real data from pretix contains more details, this is abbreviated
     # just for the necessary data we need for parsing.
     expected = pl.DataFrame(

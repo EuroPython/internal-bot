@@ -98,15 +98,20 @@ random_order = {
 
 
 @pytest.mark.django_db
-def test_latest_flat_tickets_data(products_pretix_data):
+def test_latest_flat_tickets_data(pretix_data):
     """
     Big integrated tests doing a simple sanity check through all the layers.
     Storage+Parsing+Reporting.
     """
     PretixData.objects.create(
-        content=[random_order],
+        content=pretix_data["products"],
+        resource=PretixData.PretixResources.products,
+    )
+    PretixData.objects.create(
+        content=pretix_data["orders"],
         resource=PretixData.PretixResources.orders,
     )
+
     expected = pl.DataFrame(
         {
             "state": ["submitted", "withdrawn"],
