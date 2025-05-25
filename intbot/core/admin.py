@@ -87,6 +87,11 @@ class PretalxDataAdmin(admin.ModelAdmin):
         "processed_at",
     ]
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.defer("content")
+        return qs
+
     def pretty_content(self, obj: PretalxData):
         return format_html("<pre>{}</pre>", json.dumps(obj.content, indent=4))
 
@@ -112,6 +117,11 @@ class PretixDataAdmin(admin.ModelAdmin):
         "modified_at",
         "processed_at",
     ]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.defer("content")
+        return qs
 
     def pretty_content(self, obj: PretixData):
         return format_html("<pre>{}</pre>", json.dumps(obj.content, indent=4))
