@@ -13,6 +13,7 @@ class ZammadConfig:
     finaid_group = settings.ZAMMAD_GROUP_FINAID
     sponsors_group = settings.ZAMMAD_GROUP_SPONSORS
     grants_group = settings.ZAMMAD_GROUP_GRANTS
+    volunteers_group = settings.ZAMMAD_GROUP_VOLUNTEERS
 
 
 class ZammadGroup(BaseModel):
