@@ -60,6 +60,10 @@ class Channels:
         channel_id=settings.DISCORD_HELPDESK_CHANNEL_ID,
         channel_name=settings.DISCORD_HELPDESK_CHANNEL_NAME,
     )
+    volunteers_channel = DiscordChannel(
+        channel_id=settings.DISCORD_VOLUNTEERS_CHANNEL_ID,
+        channel_name=settings.DISCORD_VOLUNTEERS_CHANNEL_NAME,
+    )
     programme_channel = DiscordChannel(
         channel_id=settings.DISCORD_PROGRAMME_CHANNEL_ID,
         channel_name=settings.DISCORD_PROGRAMME_CHANNEL_NAME,
@@ -131,6 +135,7 @@ def github_router(wh: Webhook) -> DiscordChannel:
 def zammad_router(wh: Webhook) -> DiscordChannel:
     groups = {
         ZammadConfig.helpdesk_group: Channels.helpdesk_channel,
+        ZammadConfig.volunteers_group: Channels.volunteers_channel,
         ZammadConfig.billing_group: Channels.billing_channel,
         ZammadConfig.programme_group: Channels.programme_channel,
         ZammadConfig.finaid_group: Channels.finaid_channel,
