@@ -19,10 +19,12 @@
         hour: "7"
         job: "make prod/cron/pretix"
 
-    - name: "Schedule standup message on Monday morning"
-      ansible.builtin.cron:
-        name: "Send a standup message"
-        minute: "5"
-        hour: "9"
-        weekday: "1"
-        job: "make prod/cron/standup"
+    # NOTE(artcz): Commented out for now, to rest a bit after the conference :)
+    # Let's bring it back in a few weeks :)
+    #- name: "Schedule standup message on Monday morning"
+    #  ansible.builtin.cron:
+    #    name: "Send a standup message"
+    #    minute: "5"
+    #    hour: "9"
+    #    weekday: "1"
+    #    job: "make prod/cron/standup"
