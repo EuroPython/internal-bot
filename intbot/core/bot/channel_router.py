@@ -137,6 +137,7 @@ def zammad_router(wh: Webhook) -> DiscordChannel:
         ZammadConfig.helpdesk_group: Channels.helpdesk_channel,
         ZammadConfig.volunteers_group: Channels.volunteers_channel,
         ZammadConfig.billing_group: Channels.billing_channel,
+        ZammadConfig.refunds_group: Channels.billing_channel,
         ZammadConfig.programme_group: Channels.programme_channel,
         ZammadConfig.finaid_group: Channels.finaid_channel,
         ZammadConfig.sponsors_group: Channels.sponsors_channel,

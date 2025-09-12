@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class ZammadConfig:
     url = settings.ZAMMAD_URL  # servicedesk.europython.eu
     billing_group = settings.ZAMMAD_GROUP_BILLING
+    refunds_group = settings.ZAMMAD_GROUP_REFUNDS
     helpdesk_group = settings.ZAMMAD_GROUP_HELPDESK
     programme_group = settings.ZAMMAD_GROUP_PROGRAMME
     finaid_group = settings.ZAMMAD_GROUP_FINAID
