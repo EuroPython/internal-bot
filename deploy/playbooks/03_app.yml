@@ -3,36 +3,51 @@
 
   tasks:
     - name: Clone the repository to a specific version (to a temp location)
-      git:
+      ansible.builtin.git:
         repo: "{{ repository_url }}"
         dest: /tmp/src
-        accept_hostkey: yes
+        accept_hostkey: true
         version: "{{ app_version }}"
 
     - name: Build with a given commit hash
       # This will be stored in local registry, and available as version to docker-compose
       # where we can just reference correct version
-      shell: "cd /tmp/src && make docker/build V={{ app_version }}"
+      ansible.builtin.command:
+        chdir: /tmp/src
+        cmd: "/usr/bin/make docker/build V={{ app_version }}"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Create a server Makefile to manage app tasks
       ansible.builtin.template:
-        src: ../templates/app/Makefile.app.j2
+        src: app/Makefile.app.j2
         dest: ./Makefile
+        mode: "0640"
 
     - name: Set up docker-compose.yml for the app
       ansible.builtin.template:
-        src: ../templates/app/docker-compose.app.yml.j2
+        src: app/docker-compose.app.yml.j2
         dest: ./docker-compose.yml
+        mode: "0640"
 
     - name: Copy env file example
       ansible.builtin.copy:
         src: ../templates/app/intbot.env.example
         dest: intbot.env.example
+        mode: "0640"
 
     - name: Check if the env file exists
       ansible.builtin.stat:
         path: intbot.env
       register: env_file
+
+    - name: If env file doesn't exist - copy the example
+      ansible.builtin.copy:
+        src: app/intbot.env.example
+        dest: intbot.env.example
+        mode: "0644"
+      when: not env_file.stat.exists
 
     - name: If the env file doesn't exist - fail with error message
       ansible.builtin.fail:
@@ -40,10 +55,25 @@
       when: not env_file.stat.exists
 
     - name: Start docker compose to see if everything is running
-      shell: "docker compose up -d"
+      ansible.builtin.command:
+        chdir: "{{ ansible_user_dir }}"
+        cmd: "docker compose up -d"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Migrate on prod
-      shell: "make prod/migrate"
+      ansible.builtin.command:
+        chdir: "{{ ansible_user_dir }}"
+        cmd: "/usr/bin/make prod/migrate"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
 
     - name: Restart everything and finish
-      shell: "docker compose up -d"
+      ansible.builtin.command:
+        chdir: "{{ ansible_user_dir }}"
+        cmd: "docker compose up -d"
+      register: output
+      changed_when: output.rc != 0
+      failed_when: output.rc != 0
