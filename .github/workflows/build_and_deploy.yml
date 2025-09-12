@@ -46,7 +46,6 @@ jobs:
         docker run --rm intbot make ci/lint
         docker run --rm intbot make ci/type-check
 
-
     - name: Run deployment playbooks lint
       run: make lint/deploy
 

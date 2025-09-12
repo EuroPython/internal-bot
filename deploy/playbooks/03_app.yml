@@ -35,6 +35,7 @@
       ansible.builtin.copy:
         src: ../templates/app/intbot.env.example
         dest: intbot.env.example
+        mode: "0640"
 
     - name: Check if the env file exists
       ansible.builtin.stat:
