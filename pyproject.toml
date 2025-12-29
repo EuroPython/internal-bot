@@ -32,6 +32,9 @@ dependencies = [
     "plotly-stubs>=0.0.5",
 ]
 
+[tool.uv]
+exclude-newer = "1 week"
+
 [tool.pytest.ini_options]
 pythonpath = [
     "intbot"
