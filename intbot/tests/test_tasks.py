@@ -12,7 +12,7 @@ from core.tasks import (
     process_zammad_webhook,
 )
 from django.utils import timezone
-from django_tasks.task import ResultStatus
+from django_tasks import TaskResultStatus
 from httpx import Response
 
 
@@ -56,8 +56,8 @@ def test_process_webhook_fails_if_unsupported_source():
     # Instead we have to check the result
     result = process_webhook.enqueue(str(wh.uuid))
 
-    assert result.status == ResultStatus.FAILED
-    assert result.traceback.endswith("ValueError: Unsupported source asdf\n")
+    assert result.status == TaskResultStatus.FAILED
+    assert any("Unsupported source asdf" in str(e) for e in result.errors)
 
 
 @pytest.mark.django_db

@@ -47,7 +47,7 @@ def test_flat_product_data():
             "product_name": pl.String,
             "type": pl.String,
             "variant": pl.String,
-            "price": pl.Decimal(precision=None, scale=0),
+            "price": pl.Decimal(precision=10, scale=2),
         }
     )
 
@@ -185,6 +185,14 @@ def test_latest_flat_product_data():
             },
         ],
     )
+    expected_schema = {
+        "product_id": pl.Int64,
+        "variation_id": pl.Int64,
+        "product_name": pl.String,
+        "type": pl.String,
+        "variant": pl.String,
+        "price": pl.Decimal(precision=10, scale=2),
+    }
     expected = pl.DataFrame(
         [
             FlatProductDescription(
@@ -267,7 +275,8 @@ def test_latest_flat_product_data():
                 type="Late",
                 price=Decimal("675.00"),
             ),
-        ]
+        ],
+        schema=expected_schema,
     )
 
     df = latest_flat_product_data()
