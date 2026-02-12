@@ -4,22 +4,28 @@
   tasks:
     - name: Copy nginx configuration file
       ansible.builtin.template:
-        src: ../templates/nginx/nginx.conf.j2
+        src: nginx/nginx.conf.j2
         dest: ./nginx.conf
+        mode: "0644"
 
     - name: Create a server Makefile (for nginx) to manage on-server tasks
       ansible.builtin.template:
-        src: ../templates/nginx/Makefile.nginx.j2
+        src: nginx/Makefile.nginx.j2
         dest: ./Makefile
+        mode: "0640"
 
     - name: Set up docker-compose.yml on the remote server
       ansible.builtin.template:
-        src: ../templates/nginx/docker-compose.nginx.yml.j2
+        src: nginx/docker-compose.nginx.yml.j2
         dest: ./docker-compose.yml
+        mode: "0640"
 
     - name: Make sure the directory structure for certs exist
-      shell: mkdir -p ./data/certbot/conf
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/data/certbot/conf"
+        state: directory
+        mode: "0755"
 
     - name: Display info at the end
-      debug:
+      ansible.builtin.debug:
         msg: "Go to /home/{{ ansible_user }} and run make certbot/init-staging; then make certbot/upgrade-to-prod"
