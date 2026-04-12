@@ -1,6 +1,7 @@
 from functools import wraps
 
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter  # type: ignore[import-untyped]
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from django.shortcuts import redirect
 
@@ -16,10 +17,8 @@ class EuroPythonSocialAccountAdapter(DefaultSocialAccountAdapter):
 def staff_required(view_func):  # type: ignore[no-untyped-def]
     @wraps(view_func)
     def wrapper(request: HttpRequest, *args, **kwargs):  # type: ignore[no-untyped-def]
-        if not request.user.is_authenticated:
-            return redirect(f"/accounts/login/?next={request.path}")
         if not request.user.is_staff:
             return redirect("/no-access/")
         return view_func(request, *args, **kwargs)
 
-    return wrapper
+    return login_required(wrapper, login_url="/accounts/login/")
