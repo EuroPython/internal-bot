@@ -32,6 +32,10 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_tasks",
     "django_tasks.backends.database",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     # Project apps
     "core",
 ]
@@ -46,6 +50,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 ROOT_URLCONF = "intbot.urls"
@@ -213,6 +223,27 @@ PRETALX_API_TOKEN = get("PRETALX_API_TOKEN")
 # Pretix
 PRETIX_API_TOKEN = get("PRETIX_API_TOKEN")
 
+# Google OAuth
+GOOGLE_OAUTH_CLIENT_ID = get("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET = get("GOOGLE_OAUTH_CLIENT_SECRET")
+
+# Allauth
+LOGIN_REDIRECT_URL = "/"
+SOCIALACCOUNT_ONLY = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_ADAPTER = "core.auth.EuroPythonSocialAccountAdapter"
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": GOOGLE_OAUTH_CLIENT_ID,
+            "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    },
+}
+
 
 if DJANGO_ENV == "dev":
     DEBUG = True
@@ -299,6 +330,9 @@ elif DJANGO_ENV == "test":
     ZAMMAD_GROUP_BILLING = "TestZammad Billing"
 
     PRETALX_API_TOKEN = "Test-Pretalx-API-token"
+
+    GOOGLE_OAUTH_CLIENT_ID = "test-google-client-id"
+    GOOGLE_OAUTH_CLIENT_SECRET = "test-google-client-secret"
 
 
 elif DJANGO_ENV == "local_container":

@@ -4,11 +4,16 @@ from core.analysis.submissions import (
     latest_flat_submissions_data,
     piechart_submissions_by_state,
 )
+from core.auth import staff_required
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+
+
+def no_access(request: HttpRequest) -> TemplateResponse:
+    return TemplateResponse(request, "no_access.html", status=403)
 
 
 def days_until(request):
@@ -23,7 +28,7 @@ def days_until(request):
     )
 
 
-@login_required
+@staff_required
 def products(request):
     """
     For now this is just an example of the implementation.
@@ -45,7 +50,7 @@ def products(request):
     )
 
 
-@login_required
+@staff_required
 def submissions(request):
     """
     Show some basic aggregation of submissions data
