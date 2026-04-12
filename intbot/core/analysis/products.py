@@ -106,14 +106,16 @@ def flat_product_data(products: list[Product]) -> pl.DataFrame:
                 )
             )
 
-    schema = pl.Schema({
-        "product_id": pl.Int64(),
-        "variation_id": pl.Int64(),
-        "product_name": pl.String(),
-        "type": pl.String(),
-        "variant": pl.String(),
-        "price": pl.Decimal(precision=10, scale=2),
-    })
+    schema = pl.Schema(
+        {
+            "product_id": pl.Int64(),
+            "variation_id": pl.Int64(),
+            "product_name": pl.String(),
+            "type": pl.String(),
+            "variant": pl.String(),
+            "price": pl.Decimal(precision=10, scale=2),
+        }
+    )
     return pl.DataFrame(rows, schema=schema)
 
 

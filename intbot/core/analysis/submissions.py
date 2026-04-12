@@ -57,10 +57,14 @@ class Submission(LocalisedFieldsMixin, BaseModel):
             # submission questions.
             is_submission_question = answer["submission"] is not None
 
-            if is_submission_question and cls.matches_question(answer, cls.Questions.level):
+            if is_submission_question and cls.matches_question(
+                answer, cls.Questions.level
+            ):
                 values["level"] = answer["answer"]
 
-            if is_submission_question and cls.matches_question(answer, cls.Questions.outline):
+            if is_submission_question and cls.matches_question(
+                answer, cls.Questions.outline
+            ):
                 values["outline"] = answer["answer"]
 
         return values

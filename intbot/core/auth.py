@@ -7,9 +7,7 @@ from django.shortcuts import redirect
 
 
 class EuroPythonSocialAccountAdapter(DefaultSocialAccountAdapter):
-    def is_open_for_signup(
-        self, request: HttpRequest, sociallogin: object
-    ) -> bool:
+    def is_open_for_signup(self, request: HttpRequest, sociallogin: object) -> bool:
         email = sociallogin.user.email  # type: ignore[attr-defined]
         return email.endswith("@europython.eu")
 
