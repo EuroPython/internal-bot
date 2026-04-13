@@ -18,15 +18,15 @@ def standup_message_factory() -> DiscordMessage:
         f"(2) What are you planning to work on this week\n"
         f"(3) Are there any blockers or where could you use some help?"
     )
-    
+
     # Using the test channel for now - replace with appropriate channel later
     channel = Channels.standup_channel
-    
+
     return DiscordMessage(
         channel_id=channel.channel_id,
         channel_name=channel.channel_name,
         content=content,
-        sent_at=None
+        sent_at=None,
     )
 
 

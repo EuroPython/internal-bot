@@ -30,6 +30,7 @@ dependencies = [
     "plotly[express]>=6.0.1",
     "kaleido==0.2.0",
     "plotly-stubs>=0.0.5",
+    "django-allauth[socialaccount]>=65.3.0",
 ]
 
 [tool.uv]

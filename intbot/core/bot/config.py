@@ -1,7 +1,9 @@
 """
 Configuration for all things discord related
 """
+
 from django.conf import settings
+
 
 class Roles:
     # We keep this statically defined, because we want to use it in templates
