@@ -25,7 +25,19 @@ Protected views use a `@staff_required` decorator (`core/auth.py`) that checks b
 
 Create a separate OAuth client with redirect URI `http://localhost:4672/accounts/google/login/callback/` and add credentials to `intbot/.env`. Then run `make migrate`.
 
-You can also skip this entirely — create users via Django admin and use `force_login()` in tests.
+You can also skip this entirely — for daily usage create users via Django admin (`/admin/`), and in tests use `force_login()`:
+
+```python
+def test_products_page(self, client):
+    user = User.objects.create_user(username="test", is_staff=True)
+    client.force_login(user)
+
+    response = client.get("/products/")
+
+    assert response.status_code == 200
+```
+
+Use `is_staff=True` to access `@staff_required` views, or omit it to test the non-staff redirect to `/no-access/`.
 
 ## Granting access to users
 
